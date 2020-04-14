@@ -166,7 +166,6 @@ public class DIYArrayList<T> implements List<T> {
 
     @Override
     public void forEach(Consumer<? super T> action) {
-        System.out.println("foreach remainin wanted ))");
         throw new UnsupportedOperationException();
     }
 
