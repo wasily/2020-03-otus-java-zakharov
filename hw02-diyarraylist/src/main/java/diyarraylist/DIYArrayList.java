@@ -105,7 +105,7 @@ public class DIYArrayList<T> implements List<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T get(int index) {
-        if (index >= 0 && index < this.size) {
+        if (isIndexRangeValid(index)) {
             return (T) array[index];
         } else {
             throw new IndexOutOfBoundsException("Index: " + index + " List size: " + this.size);
@@ -115,7 +115,7 @@ public class DIYArrayList<T> implements List<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T set(int index, T element) {
-        if (index >= 0 && index < this.size) {
+        if (isIndexRangeValid(index)) {
             T oldValue = (T) array[index];
             array[index] = element;
             return oldValue;
@@ -168,6 +168,11 @@ public class DIYArrayList<T> implements List<T> {
     public void forEach(Consumer<? super T> action) {
         throw new UnsupportedOperationException();
     }
+
+    private boolean isIndexRangeValid(int idx){
+        return idx >= 0 && idx < this.size;
+    }
+
 
     private class DIYIterator implements Iterator<T> {
         int currentIdx;
