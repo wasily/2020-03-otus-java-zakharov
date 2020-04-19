@@ -65,6 +65,7 @@ public class TestRunner<T> {
         for (Method method : methods) {
             try {
                 method.invoke(testClassInstance);
+                report.addReportEntry(testMethodName, new ReportEntry(method.getName(), ReportEntry.MethodType.AUX, ReportEntry.TestStatus.SUCCESS));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 report.addReportEntry(testMethodName, new ReportEntry(method.getName(), ReportEntry.MethodType.AUX, ReportEntry.TestStatus.FAILED, e.getCause().toString()));
                 throw e;
