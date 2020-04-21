@@ -22,7 +22,12 @@ public class ClassAfterFail {
     }
 
     @After
-    public void after() throws IOException {
+    public void after1() throws IOException {
         throw new IOException();
+    }
+
+    @After
+    public void after2() {
+
     }
 }
