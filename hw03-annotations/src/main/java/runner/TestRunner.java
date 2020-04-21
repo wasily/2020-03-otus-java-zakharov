@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestRunner<T> {
-    private List<Method> beforeMethods = new ArrayList<>();
-    private List<Method> testMethods = new ArrayList<>();
-    private List<Method> afterMethods = new ArrayList<>();
     private final Class<T> clazz;
     private final Report report;
 
@@ -24,6 +21,9 @@ public class TestRunner<T> {
     }
 
     public void runTests() {
+        List<Method> beforeMethods = new ArrayList<>();
+        List<Method> testMethods = new ArrayList<>();
+        List<Method> afterMethods = new ArrayList<>();
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(Before.class)) {
                 beforeMethods.add(method);
@@ -34,13 +34,13 @@ public class TestRunner<T> {
             }
         }
 
-        testMethods.stream().parallel().forEach(this::performTest);
+        testMethods.stream().parallel().forEach(m -> performTest(m, beforeMethods, afterMethods));
 
         System.out.println(report.getReportMessage());
         System.out.println(report.getStatistics());
     }
 
-    private void performTest(Method testMethod) {
+    private void performTest(Method testMethod, List<Method> beforeMethods, List<Method> afterMethods) {
         try {
             T testClassInstance = (T) clazz.getDeclaredConstructor().newInstance();
             invokeMethods(testClassInstance, beforeMethods, testMethod.getName());
