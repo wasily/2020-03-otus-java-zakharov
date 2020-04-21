@@ -1,4 +1,4 @@
-package report;
+package ru.otus.hw03.report;
 
 import java.util.ArrayList;
 import java.util.Collection;

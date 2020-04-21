@@ -1,8 +1,8 @@
-package example;
+package ru.otus.hw03.example;
 
-import annotations.After;
-import annotations.Before;
-import annotations.Test;
+import ru.otus.hw03.annotations.After;
+import ru.otus.hw03.annotations.Before;
+import ru.otus.hw03.annotations.Test;
 
 public class ClassBeforeFail {
     @Before

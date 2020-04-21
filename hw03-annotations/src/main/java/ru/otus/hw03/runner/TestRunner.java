@@ -1,10 +1,10 @@
-package runner;
+package ru.otus.hw03.runner;
 
-import annotations.After;
-import annotations.Before;
-import annotations.Test;
-import report.Report;
-import report.ReportEntry;
+import ru.otus.hw03.annotations.After;
+import ru.otus.hw03.annotations.Before;
+import ru.otus.hw03.annotations.Test;
+import ru.otus.hw03.report.Report;
+import ru.otus.hw03.report.ReportEntry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
