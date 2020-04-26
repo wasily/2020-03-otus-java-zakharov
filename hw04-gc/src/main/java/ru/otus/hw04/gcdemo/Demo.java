@@ -16,6 +16,7 @@ public class Demo {
 
     public void start() {
         CacheService<Integer, String> cacheService = new CacheServiceImpl<>(cacheSize);
+        List<String> blackhole = new ArrayList<>(40_000_000);
 
         Thread cacheUpdateThread = new Thread(() -> {
             for (int i = 0; i < cacheSize; i++) {
@@ -31,8 +32,7 @@ public class Demo {
         });
 
         Thread largeAllocationThread = new Thread(() -> {
-            List<String> blackhole = new ArrayList<>(20_000_000);
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 42; i++) {
                 sleep(30_000);
                 for (int j = 0; j < 10_000_000; j++) {
                     blackhole.add(String.valueOf(LocalDateTime.now()));
