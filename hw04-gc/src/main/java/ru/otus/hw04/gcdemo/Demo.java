@@ -1,5 +1,7 @@
 package ru.otus.hw04.gcdemo;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.otus.hw04.service.CacheService;
 import ru.otus.hw04.service.CacheServiceImpl;
 
@@ -13,6 +15,7 @@ import static java.time.temporal.ChronoUnit.MICROS;
 public class Demo {
     private int cacheSize = 40_000_000;
     private float cacheUpdateRatio = 0.1f;
+    private static final Logger logger = LogManager.getLogger("fileLog");
 
     public void start() {
         CacheService<Integer, String> cacheService = new CacheServiceImpl<>(cacheSize);
@@ -27,7 +30,7 @@ public class Demo {
                 for (int i = 0; i < cacheSize * cacheUpdateRatio; i++) {
                     cacheService.put(i, String.valueOf(Math.random() * i));
                 }
-                System.out.println(LocalTime.now() + " cache updated");
+                logger.info("cache updated");
             }
         });
 
@@ -37,7 +40,7 @@ public class Demo {
                 for (int j = 0; j < 10_000_000; j++) {
                     blackhole.add(String.valueOf(LocalDateTime.now()));
                 }
-                System.out.println(LocalTime.now() + " blackhole filled");
+                logger.info("blackhole filled");
             }
         });
 
@@ -50,7 +53,7 @@ public class Demo {
                     cacheService.get((int) (Math.random() * cacheSize));
                 }
                 LocalTime after = LocalTime.now();
-                System.out.println(queryCnt + " queries completed in : " + MICROS.between(before, after) + "μs");
+                logger.info(queryCnt + " queries completed in : " + MICROS.between(before, after) + "μs");
             }
         });
 
@@ -63,6 +66,8 @@ public class Demo {
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
+            logger.error(Thread.currentThread().getName());
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
     }
