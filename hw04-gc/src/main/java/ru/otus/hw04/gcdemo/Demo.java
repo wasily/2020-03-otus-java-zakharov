@@ -57,8 +57,11 @@ public class Demo {
             }
         });
 
+        largeAllocationThread.setName("largeAllocationThread");
         largeAllocationThread.start();
+        cacheUpdateThread.setName("cacheUpdateThread");
         cacheUpdateThread.start();
+        cacheQueryThread.setName("cacheQueryThread");
         cacheQueryThread.start();
     }
 
