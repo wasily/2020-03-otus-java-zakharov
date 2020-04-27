@@ -27,8 +27,5 @@
         <Logger name="cacheQueryLogger" level="debug" additivity="false">
             <AppenderRef ref="cacheQuery"/>
         </Logger>
-        <Root level="error">
-            <AppenderRef ref="LogToFile"/>
-        </Root>
     </Loggers>
 </Configuration>
