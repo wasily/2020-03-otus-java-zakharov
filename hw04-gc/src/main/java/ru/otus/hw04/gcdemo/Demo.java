@@ -15,9 +15,9 @@ import static java.time.temporal.ChronoUnit.MICROS;
 public class Demo {
     private int cacheSize = 40_000_000;
     private float cacheUpdateRatio = 0.1f;
-    private static final Logger cacheUpdateLogger = LogManager.getLogger("cacheUpdateLogger");
-    private static final Logger largeAllocationLogger = LogManager.getLogger("largeAllocationLogger");
-    private static final Logger cacheQueryLogger = LogManager.getLogger("cacheQueryLogger");
+    private final Logger cacheUpdateLogger = LogManager.getLogger("cacheUpdateLogger");
+    private final Logger largeAllocationLogger = LogManager.getLogger("largeAllocationLogger");
+    private final Logger cacheQueryLogger = LogManager.getLogger("cacheQueryLogger");
 
     public void start() {
         CacheService<Integer, String> cacheService = new CacheServiceImpl<>(cacheSize);
