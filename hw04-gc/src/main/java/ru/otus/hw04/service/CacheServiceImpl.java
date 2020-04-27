@@ -1,12 +1,18 @@
 package ru.otus.hw04.service;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class CacheServiceImpl<S, U> implements CacheService<S, U> {
     private final LinkedHashMap<S, U> cache;
 
     public CacheServiceImpl(int size) {
-        this.cache = new LinkedHashMap<>(size, 0.8f, true);
+        this.cache = new LinkedHashMap<>(size, 0.8f, true){
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<S, U> eldest) {
+                return size() > size;
+            }
+        };
     }
 
     @Override
