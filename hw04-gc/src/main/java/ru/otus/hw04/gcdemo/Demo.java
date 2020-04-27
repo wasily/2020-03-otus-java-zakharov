@@ -15,32 +15,38 @@ import static java.time.temporal.ChronoUnit.MICROS;
 public class Demo {
     private int cacheSize = 40_000_000;
     private float cacheUpdateRatio = 0.1f;
-    private static final Logger logger = LogManager.getLogger("fileLog");
+    private static final Logger cacheUpdateLogger = LogManager.getLogger("cacheUpdateLogger");
+    private static final Logger largeAllocationLogger = LogManager.getLogger("largeAllocationLogger");
+    private static final Logger cacheQueryLogger = LogManager.getLogger("cacheQueryLogger");
 
     public void start() {
         CacheService<Integer, String> cacheService = new CacheServiceImpl<>(cacheSize);
-        List<String> blackhole = new ArrayList<>(40_000_000);
+        List<String> blackhole = new ArrayList<>(60_000_000);
 
         Thread cacheUpdateThread = new Thread(() -> {
             for (int i = 0; i < cacheSize; i++) {
                 cacheService.put(i, String.valueOf(Math.random() * i));
             }
             while (true) {
-                sleep(15_000);
+                sleep(10_000);
+                LocalTime before = LocalTime.now();
                 for (int i = 0; i < cacheSize * cacheUpdateRatio; i++) {
                     cacheService.put(i, String.valueOf(Math.random() * i));
                 }
-                logger.info("cache updated");
+                LocalTime after = LocalTime.now();
+                cacheUpdateLogger.info("cache updated (μs): " + MICROS.between(before, after));
             }
         });
 
         Thread largeAllocationThread = new Thread(() -> {
             for (int i = 0; i < 42; i++) {
                 sleep(30_000);
+                LocalTime before = LocalTime.now();
                 for (int j = 0; j < 10_000_000; j++) {
                     blackhole.add(String.valueOf(LocalDateTime.now()));
                 }
-                logger.info("blackhole filled");
+                LocalTime after = LocalTime.now();
+                largeAllocationLogger.info("largeAllocation completed in (μs): " + MICROS.between(before, after));
             }
         });
 
@@ -53,7 +59,7 @@ public class Demo {
                     cacheService.get((int) (Math.random() * cacheSize));
                 }
                 LocalTime after = LocalTime.now();
-                logger.info(queryCnt + " queries completed in : " + MICROS.between(before, after) + "μs");
+                cacheQueryLogger.info(queryCnt + " queries completed in (μs): " + MICROS.between(before, after));
             }
         });
 
@@ -69,8 +75,6 @@ public class Demo {
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
-            logger.error(Thread.currentThread().getName());
-            logger.error(e.getMessage());
             e.printStackTrace();
         }
     }
