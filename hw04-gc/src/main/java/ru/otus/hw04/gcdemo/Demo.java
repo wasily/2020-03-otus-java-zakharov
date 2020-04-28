@@ -1,10 +1,15 @@
 package ru.otus.hw04.gcdemo;
 
+import com.sun.management.GarbageCollectionNotificationInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.otus.hw04.service.CacheService;
 import ru.otus.hw04.service.CacheServiceImpl;
 
+import javax.management.NotificationEmitter;
+import javax.management.NotificationListener;
+import javax.management.openmbean.CompositeData;
+import java.lang.management.GarbageCollectorMXBean;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -13,15 +18,24 @@ import java.util.List;
 import static java.time.temporal.ChronoUnit.MICROS;
 
 public class Demo {
-    private int cacheSize = 40_000_000;
+    private final int cacheSize;
+    private final int blackholeInitSize;
     private float cacheUpdateRatio = 0.1f;
     private final Logger cacheUpdateLogger = LogManager.getLogger("cacheUpdateLogger");
     private final Logger largeAllocationLogger = LogManager.getLogger("largeAllocationLogger");
     private final Logger cacheQueryLogger = LogManager.getLogger("cacheQueryLogger");
+    private final static Logger JMXLoggerLogger = LogManager.getLogger("JMXLogger");
+
+    public Demo(int cacheSize, int blackholeInitSize) {
+        this.cacheSize = cacheSize;
+        this.blackholeInitSize = blackholeInitSize;
+    }
 
     public void start() {
         CacheService<Integer, String> cacheService = new CacheServiceImpl<>(cacheSize);
-        List<String> blackhole = new ArrayList<>(60_000_000);
+        List<String> blackhole = new ArrayList<>(blackholeInitSize);
+
+        switchOnJMXMonitoring();
 
         Thread cacheUpdateThread = new Thread(() -> {
             for (int i = 0; i < cacheSize; i++) {
@@ -42,7 +56,7 @@ public class Demo {
             for (int i = 0; i < 42; i++) {
                 sleep(30_000);
                 LocalTime before = LocalTime.now();
-                for (int j = 0; j < 10_000_000; j++) {
+                for (int j = 0; j < blackholeInitSize / 6; j++) {
                     blackhole.add(String.valueOf(LocalDateTime.now()));
                 }
                 LocalTime after = LocalTime.now();
@@ -76,6 +90,28 @@ public class Demo {
             Thread.sleep(time);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void switchOnJMXMonitoring() {
+        List<GarbageCollectorMXBean> gcbeans = java.lang.management.ManagementFactory.getGarbageCollectorMXBeans();
+        for (GarbageCollectorMXBean gcbean : gcbeans) {
+            JMXLoggerLogger.info("GC name:" + gcbean.getName());
+            NotificationEmitter emitter = (NotificationEmitter) gcbean;
+            NotificationListener listener = (notification, handback) -> {
+                if (notification.getType().equals(GarbageCollectionNotificationInfo.GARBAGE_COLLECTION_NOTIFICATION)) {
+                    GarbageCollectionNotificationInfo info = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
+                    String gcName = info.getGcName();
+                    String gcAction = info.getGcAction();
+                    String gcCause = info.getGcCause();
+
+                    long startTime = info.getGcInfo().getStartTime();
+                    long duration = info.getGcInfo().getDuration();
+
+                    JMXLoggerLogger.info("start:" + startTime + " Name:" + gcName + ", action:" + gcAction + ", gcCause:" + gcCause + "(" + duration + " ms)");
+                }
+            };
+            emitter.addNotificationListener(listener, null, null);
         }
     }
 }

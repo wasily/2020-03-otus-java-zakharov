@@ -16,6 +16,11 @@
                 <Pattern>%d %p [%t] %m%n</Pattern>
             </PatternLayout>
         </File>
+        <File name="jmx" fileName="logs/jmx.log">
+            <PatternLayout>
+                <Pattern>%d %p [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File>
     </Appenders>
     <Loggers>
         <Logger name="cacheUpdateLogger" level="debug" additivity="false">
@@ -26,6 +31,9 @@
         </Logger>
         <Logger name="cacheQueryLogger" level="debug" additivity="false">
             <AppenderRef ref="cacheQuery"/>
+        </Logger>
+        <Logger name="JMXLogger" level="debug" additivity="false">
+            <AppenderRef ref="jmx"/>
         </Logger>
     </Loggers>
 </Configuration>
