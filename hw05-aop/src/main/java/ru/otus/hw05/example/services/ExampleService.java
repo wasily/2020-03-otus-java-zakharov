@@ -1,4 +1,4 @@
-package ru.otus.hw05.example;
+package ru.otus.hw05.example.services;
 
 public interface ExampleService {
     void sendMessage(String message, boolean isUrgent);

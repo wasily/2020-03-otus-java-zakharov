@@ -1,10 +1,10 @@
-package ru.otus.hw05.example;
+package ru.otus.hw05.example.services;
 
 import ru.otus.hw05.annotation.Log;
 
 import java.time.LocalDateTime;
 
-public class ExampleServiceImpl implements ExampleService {
+public class ConsoleServiceImpl implements ExampleService {
     @Override
     @Log
     public void sendMessage(String message, boolean isUrgent) {
