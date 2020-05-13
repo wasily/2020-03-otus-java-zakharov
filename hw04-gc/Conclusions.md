@@ -28,9 +28,9 @@
 
 Duration: 2 min 15 sec 879 ms
 
-![gc_small_001](for-report/pics/gc_small_001.png)
+![g1_small_001](for-report/pics/g1_small_001.png)
 
-![gc_small_002](for-report/pics/gc_small_002.png)
+![g1_small_002](for-report/pics/g1_small_002.png)
 
 |                  | **Young GC**  | **Full GC**  | **Concurrent** | **Remark** | **Cleanup** |
 | ---------------- | ------------- | ------------ | -------------- | ---------- | ----------- |
@@ -69,50 +69,22 @@ Duration: 2 min 15 sec 879 ms
 
 #### large heap
 
-*OOM не достигнуто, поток с большими аллокациями притормаживается.
+Duration: 11 min 44 sec 121 ms (до наступления OOM у нескольких потоков)
 
-Duration: 6 min 48 sec 521 ms
-
-![gc_large_001](for-report/pics/gc_large_001.png)
-
-![gc_large_002](for-report/pics/gc_large_002.png)
+![g1_large_001](for-report/pics/g1_large_001.png)
 
 
 
-|                  | **Young GC**        | **Full GC**         | **Concurrent** | **Cleanup** | **Remark** |
-| ---------------- | ------------------- | ------------------- | -------------- | ----------- | ---------- |
-| **Total Time**   | 3 min 51 sec 710 ms | 2 min 59 sec 635 ms | 39 sec 148 ms  | 9.03 ms     | 6.55 ms    |
-| **Avg Time**     | 1 sec 457 ms        | 4 sec 727 ms        | 13 sec 49 ms   | 3.01 ms     | 2.18 ms    |
-| **Std Dev Time** | 3 sec 180 ms        | 379 ms              | 1 sec 486 ms   | 0.974 ms    | 0.412 ms   |
-| **Min Time**     | 2.06 ms             | 4 sec 175 ms        | 11 sec 11 ms   | 1.76 ms     | 1.61 ms    |
-| **Max Time**     | 18 sec 610 ms       | 5 sec 729 ms        | 14 sec 509 ms  | 4.13 ms     | 2.54 ms    |
-| **Count**        | 159                 | 38                  | 3              | 3           | 3          |
+|                  | **Full GC**         | **Young GC**       | **Concurrent** | **Cleanup** | **Remark** |
+| ---------------- | ------------------- | ------------------ | -------------- | ----------- | ---------- |
+| **Total Time**   | 7 min 28 sec 535 ms | 6 min 34 sec 78 ms | 1 min 799 ms   | 8.11 ms     | 7.72 ms    |
+| **Avg Time**     | 4 sec 531 ms        | 1 sec 767 ms       | 15 sec 200 ms  | 2.70 ms     | 1.93 ms    |
+| **Std Dev Time** | 450 ms              | 3 sec 686 ms       | 3 sec 889 ms   | 0.678 ms    | 0.0668 ms  |
+| **Min Time**     | 3 sec 899 ms        | 1.29 ms            | 10 sec 489 ms  | 1.75 ms     | 1.83 ms    |
+| **Max Time**     | 6 sec 164 ms        | 21 sec 265 ms      | 21 sec 263 ms  | 3.24 ms     | 2.00 ms    |
+| **Count**        | 99                  | 223                | 4              | 3           | 4          |
 
-##### Pause Time 
 
-| **Total Time**   | 3 min 10 sec 982 ms |
-| ---------------- | ------------------- |
-| **Avg Time**     | 1 sec 123 ms        |
-| **Std Dev Time** | 1 sec 944 ms        |
-| **Min Time**     | 1.61 ms             |
-| **Max Time**     | 5 sec 729 ms        |
-
-##### Concurrent Time 
-
-| **Total Time**   | 39 sec 148 ms |
-| ---------------- | ------------- |
-| **Avg Time**     | 13 sec 49 ms  |
-| **Std Dev Time** | 1 sec 486 ms  |
-| **Min Time**     | 11 sec 11 ms  |
-| **Max Time**     | 14 sec 509 ms |
-
-##### Object Stats 					
-
-| Total created bytes  | 14.67 gb     |
-| -------------------- | ------------ |
-| Total promoted bytes | n/a          |
-| Avg creation rate    | 36.77 mb/sec |
-| Avg promotion rate   | n/a          |
 
 ### Shenandoah
 
@@ -167,54 +139,28 @@ Duration: 6 min 48 sec 521 ms
 
 *OOM не достигнуто, поток с большими аллокациями притормаживается.
 
-Duration: 10 min 8 sec 353 ms
+Duration: 2 hrs 49 min 35 sec (до ручной остановки приложения)
 
-![shen_large_001](for-report/pics/shen_large_001.png)
+![shen-large-001](for-report/pics/shen-large-001.png)
 
-![shen_large_002](for-report/pics/shen_large_002.png)
+![shen-large-002](for-report/pics/shen-large-002.png)
 
 
 
 |                  | **Concurrent Marking** | **Concurrent Update** | **Concurrent Evacuation** | **Pause Initial Mark** | **Pause Final Mark** | **Concurrent Cleanup** | **Pause Final Update** | **Pause Init Update** |
 | ---------------- | ---------------------- | --------------------- | ------------------------- | ---------------------- | -------------------- | ---------------------- | ---------------------- | --------------------- |
-| **Total Time**   | 2 min 34 sec 726 ms    | 2 sec 902 ms          | 1 sec 466 ms              | 46.6 ms                | 32.5 ms              | 2.29 ms                | 0.576 ms               | 0.127 ms              |
-| **Avg Time**     | 2 sec 344 ms           | 1 sec 451 ms          | 66.6 ms                   | 0.707 ms               | 1.41 ms              | 0.0994 ms              | 0.288 ms               | 0.0635 ms             |
-| **Std Dev Time** | 1 sec 693 ms           | 254 ms                | 98.0 ms                   | 0.361 ms               | 0.385 ms             | 0.0526 ms              | 0.0360 ms              | 0.0105 ms             |
-| **Min Time**     | 1.16 ms                | 1 sec 197 ms          | 0.286 ms                  | 0.420 ms               | 0.882 ms             | 0.0500 ms              | 0.252 ms               | 0.0530 ms             |
-| **Max Time**     | 5 sec 346 ms           | 1 sec 704 ms          | 277 ms                    | 2.96 ms                | 2.29 ms              | 0.287 ms               | 0.324 ms               | 0.0740 ms             |
-| **Count**        | 66                     | 2                     | 22                        | 66                     | 23                   | 23                     | 2                      | 2                     |
-
-##### Pause Time 
-
-| **Total Time**   | 7 min 6 sec 491 ms |
-| ---------------- | ------------------ |
-| **Avg Time**     | 3 sec 159 ms       |
-| **Std Dev Time** | 5 sec 544 ms       |
-| **Min Time**     | 0.0530 ms          |
-| **Max Time**     | 16 sec 307 ms      |
-
-##### Concurrent Time 
-
-| **Total Time**   | 2 min 39 sec 96 ms |
-| ---------------- | ------------------ |
-| **Avg Time**     | 2 sec 411 ms       |
-| **Std Dev Time** | 1 sec 728 ms       |
-| **Min Time**     | 1.16 ms            |
-| **Max Time**     | 5 sec 505 ms       |
-
-##### Object Stats 					
-
-| Total created bytes  | 6.89 gb      |
-| -------------------- | ------------ |
-| Total promoted bytes | n/a          |
-| Avg creation rate    | 11.59 mb/sec |
-| Avg promotion rate   | n/a          |
+| **Total Time**   | 2 min 53 sec 539 ms    | 3 sec 274 ms          | 1 sec 788 ms              | 129 ms                 | 32.5 ms              | 2.64 ms                | 0.579 ms               | 0.120 ms              |
+| **Avg Time**     | 807 ms                 | 1 sec 637 ms          | 85.1 ms                   | 0.599 ms               | 1.35 ms              | 0.110 ms               | 0.289 ms               | 0.0600 ms             |
+| **Std Dev Time** | 1 sec 448 ms           | 439 ms                | 109 ms                    | 0.491 ms               | 0.217 ms             | 0.0520 ms              | 0.0335 ms              | 0.0140 ms             |
+| **Min Time**     | 0.738 ms               | 1 sec 199 ms          | 0.109 ms                  | 0.273 ms               | 0.971 ms             | 0.0600 ms              | 0.256 ms               | 0.0460 ms             |
+| **Max Time**     | 5 sec 214 ms           | 2 sec 76 ms           | 279 ms                    | 4.44 ms                | 2.00 ms              | 0.277 ms               | 0.323 ms               | 0.0740 ms             |
+| **Count**        | 215                    | 2                     | 21                        | 215                    | 24                   | 24                     | 2                      | 2                     |
 
 ### ParallelGC
 
 #### small heap
 
- Duration: 1 min 42 sec 713 ms
+ Duration: 1 min 42 sec 713 ms 
 
 ![parallel_small_001](for-report/pics/parallel_small_001.png)
 
@@ -329,28 +275,84 @@ Duration: 5 min 54 sec 452 ms
 | Avg creation rate    | 61.81 mb/sec |
 | Avg promotion rate   | n/a          |
 
-
-
 ## Статисика вызовов наивного клиента кэша
 
-### small heap
+По логам потоков "cacheQueryThread", "cacheUpdateThread" и "largeAllocationThread" были получены следующие данные.
 
-![cache-small](for-report/pics/cache-small.png)
+### cacheQuery
 
-### large heap
+#### small heap
 
-![cache-large](for-report/pics/cache-large.png)
+![cacheQuery-small](for-report/pics/cacheQuery-small.png)
 
+#### large heap
 
+![cacheQuery-large](for-report/pics/cacheQuery-large.png)
+
+![cacheQuery-large-before-oom](for-report/pics/cacheQuery-large-before-oom.png)
+
+Примерно через 12 минут после старта приложения (при исползовании G1) наблюдается OOM , при этом поток "cacheQueryThread" продолжал логгировать результаты. При использовании ParallelGC - OOM через 5:54.
+
+```
+[681,064s][info][gc] GC(342) Pause Young (Concurrent Start) (G1 Evacuation Pause) 7495M->7495M(7500M) 4,714ms
+[681,064s][info][gc] GC(344) Concurrent Cycle
+
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "cacheUpdateThread"
+[686,301s][info][gc] GC(343) Pause Full (G1 Evacuation Pause) 7495M->7495M(7500M) 5236,751ms
+[690,519s][info][gc] GC(345) Pause Full (G1 Evacuation Pause) 7495M->7495M(7500M) 4204,531ms
+[690,530s][info][gc] GC(344) Concurrent Cycle 9466,199ms
+[690,532s][info][gc] GC(346) Pause Young (Normal) (G1 Evacuation Pause) 7495M->7495M(7500M) 1,771ms
+[694,919s][info][gc] GC(347) Pause Full (G1 Evacuation Pause) 7495M->7495M(7500M) 4386,879ms
+[700,043s][info][gc] GC(348) Pause Full (G1 Evacuation Pause) 7495M->7495M(7500M) 5114,574ms
+[700,060s][info][gc] GC(349) Pause Young (Concurrent Start) (G1 Evacuation Pause) 7495M->7495M(7500M) 4,957ms
+[700,060s][info][gc] GC(351) Concurrent Cycle
+
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "largeAllocationThread"
+[704,140s][info][gc] GC(350) Pause Full (G1 Evacuation Pause) 7495M->4826M(7500M) 4079,954ms
+[704,149s][info][gc] GC(351) Concurrent Cycle 4088,614ms
+```
+
+### cacheUpdate
+
+#### small heap
+
+![cache-update-small](for-report/pics/cache-update-small.png)
+
+#### large heap
+
+![cache-update-large](for-report/pics/cache-update-large.png)
+
+G1 показал более лучшие результаты в самом начале работы, Shenandoah обеспечил более "стабильное" выполнение работы (апдейт выполнялся чаще).
+
+С определенного момента  работа по обновлению кэша замедлилась у всех рассматриваемых GC (ParallelGC - OOM через 5:54, G1 - OOM через 11:44).
+
+### largeAllocation
+
+#### small heap
+
+![largeAllocation-small](for-report/pics/largeAllocation-small.png)
+
+#### large heap
+
+![largeAllocation-large](for-report/pics/largeAllocation-large.png)
+
+Представленная статистика кажется не очень репрезентативной, но полученные результаты у G1 лучше на старте приложения, Shenandoah смог аллоцировать в состоянии критической заполненности heap'а.
 
 ## Выводы
 
-Характер реализованной нагрузки вынуждает GC (G1, Shenandoah) притормаживать аллоцирующие потоки (Allocation Failure). 
+Можно отметить, что при использовании G1 в heap'е аллоцировалось до 7,494gb, при shenandoah - 6,980gb.
+
+В целом, при использовании рассматриваемых GC, результаты по времени исполнения метода в потоке"cacheQueryThread" сопоставимы, однако часть замеров при использовании Shenandoah на старте приложения выбивается на несколько порядков в худшую сторону. В то же время, примерно через 5 минут после старта приложения показания при использовании Shenandoah приходят к наилучшим значениям (на несколько порядков лучше показателей, при использовании G1). 
+
+Статистика работы потока "cacheUpdateThread" показала схожую картину - на старте приложения использование G1 привело к более лучшим результатам, а с ходом заполнения heap'а показания предпочтительнее при использовании Shenandoah.
 
 STW паузы увеличивают время на доступ к кэшу.
 
-В целом метрики наивного клиента доступа к кэшу сопоставимы  при использовании рассматриваемых GC.
+Характер реализованной нагрузки вынуждает GC (G1, Shenandoah) притормаживать аллоцирующие потоки (Allocation Failure). 
 
-Из-за характера нагрузки не проявляется параллелизм compact-фазы Shenandoah.
+Механизм сдерживания аллоцирующих потоков позволил Shenandoah обеспечить более долгую работу приложения в целом (приложение было остановлено вручную).
+
+Такой механизм может спасти в ситуациях, когда heap близок к заполнению "живыми" данными(предупреждение события OOM). Это может быть полезно, если наблюдаются врЕменные всплески потребления памяти. Любой GC будет деградировать работу JVM, когда heap почти заполнен и 
+большинство объектов достижимы, мои наблюдения показали, что в подобной ситуации Shenandoah продержался по времени дольше. 
 
 В целом Shenandoah преодставляется более предпочтительным в связи с более "выживаемым" характером при критических значениях заполненности heap достижимыми данными.
