@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="DEBUG">
+    <Appenders>
+        <File name="cacheUpdate" fileName="logs/cacheUpdate.log">
+            <PatternLayout>
+                <Pattern>%d %p [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File>
+        <File name="largeAllocation" fileName="logs/largeAllocation.log">
+            <PatternLayout>
+                <Pattern>%d %p [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File>
+        <File name="cacheQuery" fileName="logs/cacheQuery.log">
+            <PatternLayout>
+                <Pattern>%d %p [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File>
+        <File name="jmx" fileName="logs/jmx.log">
+            <PatternLayout>
+                <Pattern>%d %p [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="cacheUpdateLogger" level="debug" additivity="false">
+            <AppenderRef ref="cacheUpdate"/>
+        </Logger>
+        <Logger name="largeAllocationLogger" level="debug" additivity="false">
+            <AppenderRef ref="largeAllocation"/>
+        </Logger>
+        <Logger name="cacheQueryLogger" level="debug" additivity="false">
+            <AppenderRef ref="cacheQuery"/>
+        </Logger>
+        <Logger name="JMXLogger" level="debug" additivity="false">
+            <AppenderRef ref="jmx"/>
+        </Logger>
+    </Loggers>
+</Configuration>
