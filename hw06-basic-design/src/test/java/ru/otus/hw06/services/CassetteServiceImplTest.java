@@ -25,32 +25,32 @@ class CassetteServiceImplTest {
 
     @Test
     void shouldReturnRequestedBanknotes() {
-        int countToTake = 3;
-        assertEquals(countToTake, cassetteService.retrieveBanknotes(countToTake).size());
-        assertEquals(initialBanknoteCount - countToTake, cassetteService.getBanknotesCount());
+        int banknotesCountToReturn = 3;
+        assertEquals(banknotesCountToReturn, cassetteService.retrieveBanknotes(banknotesCountToReturn).size());
+        assertEquals(initialBanknoteCount - banknotesCountToReturn, cassetteService.getBanknotesCount());
     }
 
     @Test
     void shouldNotReturnBanknotesIfUnableTo() {
-        int countToReturn = initialBanknoteCount + 1;
-        assertEquals(0, cassetteService.retrieveBanknotes(countToReturn).size());
+        int banknotesCountToReturn = initialBanknoteCount + 1;
+        assertEquals(0, cassetteService.retrieveBanknotes(banknotesCountToReturn).size());
         assertEquals(initialBanknoteCount, cassetteService.getBanknotesCount());
     }
 
     @Test
     void shouldNotReturnBanknotesIfInvalidCount() {
-        int countToReturn = -1;
-        assertEquals(0, cassetteService.retrieveBanknotes(countToReturn).size());
+        int banknotesCountToReturn = -1;
+        assertEquals(0, cassetteService.retrieveBanknotes(banknotesCountToReturn).size());
         assertEquals(initialBanknoteCount, cassetteService.getBanknotesCount());
     }
 
     @Test
     void shouldObtainBanknotes() {
-        int countToObtain = 4;
+        int banknotesCountToStore = 4;
         List<Banknote> newBanknotes = Stream.generate(() -> new Banknote(Denomination.ONE_HUNDRED))
-                .limit(countToObtain).collect(Collectors.toList());
+                .limit(banknotesCountToStore).collect(Collectors.toList());
         cassetteService.storeBanknotes(newBanknotes);
-        assertEquals(initialBanknoteCount + countToObtain, cassetteService.getBanknotesCount());
+        assertEquals(initialBanknoteCount + banknotesCountToStore, cassetteService.getBanknotesCount());
     }
 
     @Test
