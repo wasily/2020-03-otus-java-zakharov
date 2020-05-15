@@ -17,7 +17,7 @@ public enum Denomination {
         this.denomination = denomination;
     }
 
-    long getDenominationValue() {
+    public long getDenominationValue() {
         return denomination;
     }
 }
