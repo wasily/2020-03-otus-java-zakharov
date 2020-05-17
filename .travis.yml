@@ -1,0 +1,11 @@
+language: java
+before_install:
+  - wget https://services.gradle.org/distributions/gradle-6.3-bin.zip
+  - unzip -d /opt/gradle gradle-6.3-bin.zip
+  - export GRADLE_HOME=/opt/gradle/gradle-6.3
+  - export PATH=$GRADLE_HOME/bin:$PATH
+  - gradle -v
+  - wget http://download.bell-sw.com/java/13.0.2+9/bellsoft-jdk13.0.2+9-linux-amd64.deb
+  - sudo dpkg -i bellsoft-jdk13.0.2+9-linux-amd64.deb
+  - export JAVA_HOME=/usr/lib/jvm/bellsoft-java13-amd64
+  - export PATH=$JAVA_HOME/bin:$PATH
