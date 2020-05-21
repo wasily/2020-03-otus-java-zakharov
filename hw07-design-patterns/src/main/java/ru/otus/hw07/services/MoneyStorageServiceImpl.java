@@ -5,45 +5,35 @@ import ru.otus.hw07.domain.Denomination;
 import ru.otus.hw07.domain.NoSuitableBanknotesAvailableException;
 import ru.otus.hw07.domain.NotSufficientFundsException;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MoneyStorageServiceImpl implements MoneyStorageService {
-    private final EnumMap<Denomination, CassetteService> cassettesMap;
+    private final TreeMap<Denomination, CassetteService> cassettesMap;
 
-    public MoneyStorageServiceImpl(EnumMap<Denomination, CassetteService> cassettesMap) {
+    public MoneyStorageServiceImpl(TreeMap<Denomination, CassetteService> cassettesMap) {
         this.cassettesMap = cassettesMap;
     }
 
     @Override
     public long storeMoney(List<Banknote> moneyBundle) {
-        long storedMoney = 0;
-        EnumMap<Denomination, List<Banknote>> buffer = getBanknotesEmptyBuffer();
-        for (var banknote : moneyBundle) {
-            buffer.get(banknote.getDenomination()).add(banknote);
-            storedMoney += banknote.getDenomination().getDenominationValue();
-        }
-        for (var banknoteType : buffer.keySet()) {
-            cassettesMap.get(banknoteType).storeBanknotes(buffer.get(banknoteType));
-        }
-        return storedMoney;
+        Map<Denomination, List<Banknote>> groupedBanknotes = moneyBundle.stream()
+                .collect(Collectors.groupingBy(Banknote::getDenomination));
+        groupedBanknotes.forEach((k, v) -> cassettesMap.get(k).storeBanknotes(v));
+        return groupedBanknotes.entrySet().stream()
+                .map(entry -> entry.getKey().getDenominationValue() * entry.getValue().size())
+                .reduce(0L, Long::sum);
     }
 
     @Override
     public List<Banknote> retrieveMoney(long amount) throws NoSuitableBanknotesAvailableException, NotSufficientFundsException {
-        if (getAvailableMoneyCount().equals(BigInteger.ZERO)
-                || (getAvailableMoneyCount().compareTo(BigInteger.valueOf(amount)) == -1)) {
+        if (getAvailableMoneyCount() == 0 || getAvailableMoneyCount() < amount) {
             throw new NotSufficientFundsException("Не хватает денег для выдачи " + amount);
         }
-        List<Denomination> sorted = Arrays.asList(Denomination.values());
-        sorted.sort((a, b) -> Long.compare(b.getDenominationValue(), a.getDenominationValue()));
 
         EnumMap<Denomination, Integer> banknotesCountBuffer = new EnumMap<>(Denomination.class);
         long remains = amount;
-        for (var denomination : sorted) {
+        for (var denomination : cassettesMap.keySet()) {
             int neededBanknotesCount = (int) (remains / denomination.getDenominationValue());
             int availableBanknotesCount = getAvailableBanknotesCount(denomination);
             if (neededBanknotesCount == 0) {
@@ -71,19 +61,11 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
         return result;
     }
 
-    private EnumMap<Denomination, List<Banknote>> getBanknotesEmptyBuffer() {
-        EnumMap<Denomination, List<Banknote>> buffer = new EnumMap<>(Denomination.class);
-        for (var denomination : Denomination.values()) {
-            buffer.put(denomination, new ArrayList<>());
-        }
-        return buffer;
-    }
-
     @Override
-    public BigInteger getAvailableMoneyCount() {
+    public long getAvailableMoneyCount() {
         return cassettesMap.entrySet().stream()
-                .map(entry -> BigInteger.valueOf(entry.getKey().getDenominationValue() * entry.getValue().getBanknotesCount()))
-                .reduce(BigInteger.ZERO, BigInteger::add);
+                .map(entry -> entry.getKey().getDenominationValue() * entry.getValue().getBanknotesCount())
+                .reduce(0L, Long::sum);
     }
 
     @Override

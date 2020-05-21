@@ -7,16 +7,19 @@ import ru.otus.hw07.services.CassetteService;
 import ru.otus.hw07.services.CassetteServiceImpl;
 import ru.otus.hw07.services.MoneyStorageServiceImpl;
 
-import java.util.EnumMap;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeMap;
 
 public class Starter {
     public static void main(String[] args) {
-        EnumMap<Denomination, CassetteService> cassetteServiceEnumMap = new EnumMap<>(Denomination.class);
-        for (var den: Denomination.values()){
-            cassetteServiceEnumMap.put(den, new CassetteServiceImpl());
+        Comparator<Denomination> denominationComparator =
+                (first, second) -> Long.compare(second.getDenominationValue(), first.getDenominationValue());
+        TreeMap<Denomination, CassetteService> cassetteMap = new TreeMap<>(denominationComparator);
+        for (var den : Denomination.values()) {
+            cassetteMap.put(den, new CassetteServiceImpl());
         }
-        var atm = new ATMImpl(new MoneyStorageServiceImpl(cassetteServiceEnumMap));
+        var atm = new ATMImpl(new MoneyStorageServiceImpl(cassetteMap));
 
         var banknoteList = List.of(
                 new Banknote(Denomination.FIFTY),

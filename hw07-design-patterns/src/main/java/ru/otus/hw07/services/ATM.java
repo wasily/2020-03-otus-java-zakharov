@@ -8,5 +8,5 @@ import java.util.List;
 public interface ATM {
     long depositMoney(List<Banknote> moneyBundle);
     List<Banknote> withdrawMoney(long amount);
-    BigInteger getAvailableMoneyCount();
+    long getAvailableMoneyCount();
 }

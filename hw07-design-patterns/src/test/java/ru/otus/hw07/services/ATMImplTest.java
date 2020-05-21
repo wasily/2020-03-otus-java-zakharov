@@ -8,7 +8,6 @@ import ru.otus.hw07.domain.Denomination;
 import ru.otus.hw07.domain.NoSuitableBanknotesAvailableException;
 import ru.otus.hw07.domain.NotSufficientFundsException;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,7 +47,7 @@ class ATMImplTest {
     @Test
     void shouldReturnAvailableMoneyCount() {
         long expectedBalance = 1984;
-        when(moneyStorageService.getAvailableMoneyCount()).thenReturn(BigInteger.valueOf(expectedBalance));
-        assertEquals(BigInteger.valueOf(expectedBalance), atm.getAvailableMoneyCount());
+        when(moneyStorageService.getAvailableMoneyCount()).thenReturn(expectedBalance);
+        assertEquals(expectedBalance, atm.getAvailableMoneyCount());
     }
 }

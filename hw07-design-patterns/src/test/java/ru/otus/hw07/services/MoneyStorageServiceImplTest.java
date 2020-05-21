@@ -9,8 +9,9 @@ import ru.otus.hw07.domain.NoSuitableBanknotesAvailableException;
 import ru.otus.hw07.domain.NotSufficientFundsException;
 
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,21 +19,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Тест сервиса хранения денег ")
 class MoneyStorageServiceImplTest {
+    Comparator<Denomination> denominationComparator =
+            (first, second) -> Long.compare(second.getDenominationValue(), first.getDenominationValue());
     private MoneyStorageService moneyStorageService;
-    private final EnumMap<Denomination, CassetteService> cassetteServiceEnumMap = new EnumMap<>(Denomination.class);
+    private final TreeMap<Denomination, CassetteService> cassetteMap = new TreeMap<>(denominationComparator);
 
     @BeforeEach
     public void setUpMoneyStorage() {
-        moneyStorageService = new MoneyStorageServiceImpl(cassetteServiceEnumMap);
+        moneyStorageService = new MoneyStorageServiceImpl(cassetteMap);
         for (var den : Denomination.values()) {
-            cassetteServiceEnumMap.put(den, new CassetteServiceImpl());
+            cassetteMap.put(den, new CassetteServiceImpl());
         }
     }
 
     @Test
     @DisplayName(" должен пополнить хранилище денег")
     void shouldDeposit() {
-        assertEquals(0, moneyStorageService.getAvailableMoneyCount().longValue());
+        assertEquals(0, moneyStorageService.getAvailableMoneyCount());
         var moneyBundle = List.of(
                 new Banknote(Denomination.FIFTY),
                 new Banknote(Denomination.FIFTY),
@@ -47,11 +50,11 @@ class MoneyStorageServiceImplTest {
         );
         long expectedSum = moneyBundle.stream().map(banknote -> banknote.getDenomination().getDenominationValue()).reduce(0L, Long::sum);
         assertEquals(expectedSum, moneyStorageService.storeMoney(moneyBundle));
-        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount().longValue());
+        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount());
 
         expectedSum += 500;
         assertEquals(500, moneyStorageService.storeMoney(List.of(new Banknote(Denomination.FIVE_HUNDRED))));
-        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount().longValue());
+        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount());
     }
 
     @Test
@@ -88,21 +91,21 @@ class MoneyStorageServiceImplTest {
     @Test
     @DisplayName(" должен правильно вернуть сумму хранящихся денег")
     void shouldReturnAvailableMoneyCount() throws NotSufficientFundsException, NoSuitableBanknotesAvailableException {
-        assertEquals(0, moneyStorageService.getAvailableMoneyCount().longValue());
+        assertEquals(0, moneyStorageService.getAvailableMoneyCount());
         var moneyBundle = List.of(new Banknote(Denomination.FIFTY), new Banknote(Denomination.FIFTY),
                 new Banknote(Denomination.FIVE_HUNDRED),
                 new Banknote(Denomination.FIVE_THOUSAND));
         moneyStorageService.storeMoney(moneyBundle);
         int expectedSum = 50 + 50 + 500 + 5_000;
-        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount().longValue());
+        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount());
 
         moneyStorageService.storeMoney(List.of(new Banknote(Denomination.ONE_THOUSAND)));
         expectedSum += 1_000;
-        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount().longValue());
+        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount());
 
         moneyStorageService.retrieveMoney(5_000);
         expectedSum -= 5_000;
-        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount().longValue());
+        assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount());
     }
 
     @Test
