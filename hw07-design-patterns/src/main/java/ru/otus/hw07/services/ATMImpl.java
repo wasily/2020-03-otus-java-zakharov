@@ -24,9 +24,7 @@ public class ATMImpl implements ATM {
     public List<Banknote> withdrawMoney(long amount) {
         try {
             return moneyStorageService.retrieveMoney(amount);
-        } catch (NoSuitableBanknotesAvailableException e) {
-            e.printStackTrace();
-        } catch (NotSufficientFundsException e) {
+        } catch (NoSuitableBanknotesAvailableException | NotSufficientFundsException e) {
             e.printStackTrace();
         }
         return Collections.emptyList();

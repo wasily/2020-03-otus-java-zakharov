@@ -12,10 +12,10 @@ import java.util.EnumMap;
 import java.util.List;
 
 public class MoneyStorageServiceImpl implements MoneyStorageService {
-    private final EnumMap<Denomination, CassetteService> cassetteServices;
+    private final EnumMap<Denomination, CassetteService> cassettesMap;
 
-    public MoneyStorageServiceImpl(EnumMap<Denomination, CassetteService> cassetteServicesMap) {
-        this.cassetteServices = cassetteServicesMap;
+    public MoneyStorageServiceImpl(EnumMap<Denomination, CassetteService> cassettesMap) {
+        this.cassettesMap = cassettesMap;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
             storedMoney += banknote.getDenomination().getDenominationValue();
         }
         for (var banknoteType : buffer.keySet()) {
-            cassetteServices.get(banknoteType).storeBanknotes(buffer.get(banknoteType));
+            cassettesMap.get(banknoteType).storeBanknotes(buffer.get(banknoteType));
         }
         return storedMoney;
     }
@@ -66,7 +66,7 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
         List<Banknote> result = new ArrayList<>();
         for (var denomination : banknotesCountBuffer.keySet()) {
             int banknotesCount = banknotesCountBuffer.get(denomination);
-            result.addAll(cassetteServices.get(denomination).retrieveBanknotes(banknotesCount));
+            result.addAll(cassettesMap.get(denomination).retrieveBanknotes(banknotesCount));
         }
         return result;
     }
@@ -81,14 +81,13 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
 
     @Override
     public BigInteger getAvailableMoneyCount() {
-        return cassetteServices.entrySet().stream()
-                .filter(entry -> entry.getValue().getBanknotesCount() > 0)
+        return cassettesMap.entrySet().stream()
                 .map(entry -> BigInteger.valueOf(entry.getKey().getDenominationValue() * entry.getValue().getBanknotesCount()))
                 .reduce(BigInteger.ZERO, BigInteger::add);
     }
 
     @Override
     public int getAvailableBanknotesCount(Denomination banknoteDenomination) {
-        return cassetteServices.get(banknoteDenomination).getBanknotesCount();
+        return cassettesMap.get(banknoteDenomination).getBanknotesCount();
     }
 }
