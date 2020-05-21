@@ -19,7 +19,7 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
     public long storeMoney(List<Banknote> moneyBundle) {
         Map<Denomination, List<Banknote>> groupedBanknotes = moneyBundle.stream()
                 .collect(Collectors.groupingBy(Banknote::getDenomination));
-        groupedBanknotes.forEach((k, v) -> cassettesMap.get(k).storeBanknotes(v));
+        groupedBanknotes.forEach((k, v) -> cassettesMap.get(k).storeBanknotes(v.size()));
         return groupedBanknotes.entrySet().stream()
                 .map(entry -> entry.getKey().getDenominationValue() * entry.getValue().size())
                 .reduce(0L, Long::sum);
@@ -54,10 +54,12 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
             throw new NoSuitableBanknotesAvailableException("Невозможно собрать требуемую сумму");
         }
         List<Banknote> result = new ArrayList<>();
-        for (var denomination : banknotesCountBuffer.keySet()) {
-            int banknotesCount = banknotesCountBuffer.get(denomination);
-            result.addAll(cassettesMap.get(denomination).retrieveBanknotes(banknotesCount));
-        }
+        banknotesCountBuffer.forEach((denomination, count) -> {
+            cassettesMap.get(denomination).retrieveBanknotes(count);
+            for (int i = 0; i < count; i++) {
+                result.add(new Banknote(denomination));
+            }
+        });
         return result;
     }
 

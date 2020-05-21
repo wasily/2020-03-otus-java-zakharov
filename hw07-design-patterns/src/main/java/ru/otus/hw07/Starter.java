@@ -17,7 +17,7 @@ public class Starter {
                 (first, second) -> Long.compare(second.getDenominationValue(), first.getDenominationValue());
         TreeMap<Denomination, CassetteService> cassetteMap = new TreeMap<>(denominationComparator);
         for (var den : Denomination.values()) {
-            cassetteMap.put(den, new CassetteServiceImpl());
+            cassetteMap.put(den, new CassetteServiceImpl(0));
         }
         var atm = new ATMImpl(new MoneyStorageServiceImpl(cassetteMap));
 

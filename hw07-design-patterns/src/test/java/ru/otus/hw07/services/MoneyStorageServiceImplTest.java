@@ -28,7 +28,7 @@ class MoneyStorageServiceImplTest {
     public void setUpMoneyStorage() {
         moneyStorageService = new MoneyStorageServiceImpl(cassetteMap);
         for (var den : Denomination.values()) {
-            cassetteMap.put(den, new CassetteServiceImpl());
+            cassetteMap.put(den, new CassetteServiceImpl(0));
         }
     }
 
