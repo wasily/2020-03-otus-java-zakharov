@@ -24,7 +24,7 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
         EnumMap<Denomination, List<Banknote>> buffer = getBanknotesEmptyBuffer();
         for (var banknote : moneyBundle) {
             buffer.get(banknote.getDenomination()).add(banknote);
-            storedMoney += banknote.getValue();
+            storedMoney += banknote.getDenomination().getDenominationValue();
         }
         for (var banknoteType : buffer.keySet()) {
             cassetteServices.get(banknoteType).storeBanknotes(buffer.get(banknoteType));

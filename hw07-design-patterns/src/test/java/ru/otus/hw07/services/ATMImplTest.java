@@ -30,7 +30,7 @@ class ATMImplTest {
         var banknotes = List.of(new Banknote(Denomination.TEN),
                 new Banknote(Denomination.FIVE_HUNDRED),
                 new Banknote(Denomination.FIVE_HUNDRED));
-        long expectedSum = banknotes.stream().map(Banknote::getValue).reduce(0L, Long::sum);
+        long expectedSum = banknotes.stream().map(banknote -> banknote.getDenomination().getDenominationValue()).reduce(0L, Long::sum);
         when(moneyStorageService.storeMoney(banknotes)).thenReturn(expectedSum);
         assertEquals(expectedSum, atm.depositMoney(banknotes));
     }
@@ -40,7 +40,7 @@ class ATMImplTest {
         var expectedMoney = List.of(new Banknote(Denomination.TWO_THOUSAND),
                 new Banknote(Denomination.TWO_HUNDRED),
                 new Banknote(Denomination.TEN));
-        long sum = expectedMoney.stream().map(Banknote::getValue).reduce(0L, Long::sum);
+        long sum = expectedMoney.stream().map(banknote -> banknote.getDenomination().getDenominationValue()).reduce(0L, Long::sum);
         when(moneyStorageService.retrieveMoney(sum)).thenReturn(expectedMoney);
         Assertions.assertThat(atm.withdrawMoney(sum)).hasSize(3).containsAll(expectedMoney);
     }

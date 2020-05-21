@@ -45,7 +45,7 @@ class MoneyStorageServiceImplTest {
                 new Banknote(Denomination.TWO_THOUSAND),
                 new Banknote(Denomination.TWO_HUNDRED)
         );
-        long expectedSum = moneyBundle.stream().map(Banknote::getValue).reduce(0L, Long::sum);
+        long expectedSum = moneyBundle.stream().map(banknote -> banknote.getDenomination().getDenominationValue()).reduce(0L, Long::sum);
         assertEquals(expectedSum, moneyStorageService.storeMoney(moneyBundle));
         assertEquals(expectedSum, moneyStorageService.getAvailableMoneyCount().longValue());
 

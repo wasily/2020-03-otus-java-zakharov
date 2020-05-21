@@ -11,7 +11,4 @@ public class Banknote {
         return denomination;
     }
 
-    public long getValue() {
-        return denomination.getDenominationValue();
-    }
 }
