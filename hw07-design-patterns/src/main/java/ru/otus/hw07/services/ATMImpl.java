@@ -6,6 +6,7 @@ import ru.otus.hw07.domain.NotSufficientFundsException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ATMImpl implements ATM {
     private final MoneyStorageService moneyStorageService;
@@ -32,5 +33,18 @@ public class ATMImpl implements ATM {
     @Override
     public long getAvailableMoneyCount() {
         return moneyStorageService.getAvailableMoneyCount();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ATMImpl atm = (ATMImpl) o;
+        return moneyStorageService.equals(atm.moneyStorageService);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moneyStorageService);
     }
 }
