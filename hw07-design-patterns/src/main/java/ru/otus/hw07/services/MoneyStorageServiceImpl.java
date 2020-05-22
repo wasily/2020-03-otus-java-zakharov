@@ -1,5 +1,9 @@
 package ru.otus.hw07.services;
 
+import ru.otus.hw07.banknotestrategy.BanknotesStrategyContext;
+import ru.otus.hw07.banknotestrategy.GreedyBanknotesStrategy;
+import ru.otus.hw07.banknotestrategy.MinBanknoteCountStrategy;
+import ru.otus.hw07.banknotestrategy.StrategyEnum;
 import ru.otus.hw07.domain.Banknote;
 import ru.otus.hw07.domain.Denomination;
 import ru.otus.hw07.domain.NoSuitableBanknotesAvailableException;
@@ -9,10 +13,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class MoneyStorageServiceImpl implements MoneyStorageService {
-    private final TreeMap<Denomination, CassetteService> cassettesMap;
+    private final Comparator<Denomination> denominationComparator =
+            (first, second) -> Long.compare(second.getDenominationValue(), first.getDenominationValue());
+    private final TreeMap<Denomination, CassetteService> cassettesMap = new TreeMap<>(denominationComparator);
+    private final BanknotesStrategyContext banknotesStrategyContext = new BanknotesStrategyContext();
 
-    public MoneyStorageServiceImpl(TreeMap<Denomination, CassetteService> cassettesMap) {
-        this.cassettesMap = cassettesMap;
+    public MoneyStorageServiceImpl(Map<Denomination, CassetteService> cassettesMap) {
+        this.cassettesMap.putAll(cassettesMap);
     }
 
     @Override
@@ -26,35 +33,27 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
     }
 
     @Override
-    public List<Banknote> retrieveMoney(long amount) throws NoSuitableBanknotesAvailableException, NotSufficientFundsException {
+    public List<Banknote> retrieveMoney(StrategyEnum strategyEnum, long amount) throws NoSuitableBanknotesAvailableException, NotSufficientFundsException {
         if (getAvailableMoneyCount() == 0 || getAvailableMoneyCount() < amount) {
             throw new NotSufficientFundsException("Не хватает денег для выдачи " + amount);
         }
-
-        EnumMap<Denomination, Integer> banknotesCountBuffer = new EnumMap<>(Denomination.class);
-        long remains = amount;
-        for (var denomination : cassettesMap.keySet()) {
-            int neededBanknotesCount = (int) (remains / denomination.getDenominationValue());
-            int availableBanknotesCount = getAvailableBanknotesCount(denomination);
-            if (neededBanknotesCount == 0) {
-                continue;
-            }
-            if (neededBanknotesCount > availableBanknotesCount) {
-                banknotesCountBuffer.put(denomination, availableBanknotesCount);
-                remains -= denomination.getDenominationValue() * availableBanknotesCount;
-                continue;
-            }
-            banknotesCountBuffer.put(denomination, neededBanknotesCount);
-            remains -= denomination.getDenominationValue() * neededBanknotesCount;
-            if (remains == 0) {
+        TreeMap<Denomination, Integer> availableFunds = new TreeMap<>(denominationComparator);
+        availableFunds.putAll(cassettesMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getBanknotesCount())));
+        switch (strategyEnum) {
+            case REGULAR:
+                banknotesStrategyContext.setBanknotesStrategy(new MinBanknoteCountStrategy(amount, availableFunds));
                 break;
-            }
+            case GREEDY:
+                banknotesStrategyContext.setBanknotesStrategy(new GreedyBanknotesStrategy());
+                break;
+            default:
+                throw new NoSuitableBanknotesAvailableException(this.getClass().getName() + " невозможно выдать требуемую сумму");
         }
-        if (remains != 0) {
-            throw new NoSuitableBanknotesAvailableException("Невозможно собрать требуемую сумму");
-        }
+
+        EnumMap<Denomination, Integer> banknotesCountMap = banknotesStrategyContext.applyBanknotesStrategy();
         List<Banknote> result = new ArrayList<>();
-        banknotesCountBuffer.forEach((denomination, count) -> {
+        banknotesCountMap.forEach((denomination, count) -> {
             cassettesMap.get(denomination).retrieveBanknotes(count);
             for (int i = 0; i < count; i++) {
                 result.add(new Banknote(denomination));

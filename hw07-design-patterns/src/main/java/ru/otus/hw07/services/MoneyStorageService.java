@@ -1,5 +1,6 @@
 package ru.otus.hw07.services;
 
+import ru.otus.hw07.banknotestrategy.StrategyEnum;
 import ru.otus.hw07.domain.Banknote;
 import ru.otus.hw07.domain.Denomination;
 import ru.otus.hw07.domain.NoSuitableBanknotesAvailableException;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public interface MoneyStorageService {
     long storeMoney(List<Banknote> moneyBundle);
-    List<Banknote> retrieveMoney(long amount) throws NoSuitableBanknotesAvailableException, NotSufficientFundsException;
+    List<Banknote> retrieveMoney(StrategyEnum strategyEnum, long amount) throws NoSuitableBanknotesAvailableException, NotSufficientFundsException;
     long getAvailableMoneyCount();
     int getAvailableBanknotesCount(Denomination banknoteDenomination);
 }

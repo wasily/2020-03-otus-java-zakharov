@@ -2,6 +2,7 @@ package ru.otus.hw07.department;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.otus.hw07.banknotestrategy.StrategyEnum;
 import ru.otus.hw07.domain.Banknote;
 import ru.otus.hw07.domain.Denomination;
 import ru.otus.hw07.services.ATM;
@@ -45,9 +46,9 @@ class ATMDepartmentTest {
     @Test
     void withdrawMoney() {
         assertThrows(UnsupportedOperationException.class,
-                () -> atmDepartment.withdrawMoney(0));
+                () -> atmDepartment.withdrawMoney(StrategyEnum.REGULAR, 0));
         assertThrows(UnsupportedOperationException.class,
-                () -> atmDepartment.withdrawMoney(100));
+                () -> atmDepartment.withdrawMoney(StrategyEnum.REGULAR, 100));
     }
 
     @Test

@@ -3,6 +3,7 @@ package ru.otus.hw07.services;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.otus.hw07.banknotestrategy.StrategyEnum;
 import ru.otus.hw07.domain.Banknote;
 import ru.otus.hw07.domain.Denomination;
 import ru.otus.hw07.domain.NoSuitableBanknotesAvailableException;
@@ -40,8 +41,8 @@ class ATMImplTest {
                 new Banknote(Denomination.TWO_HUNDRED),
                 new Banknote(Denomination.TEN));
         long sum = expectedMoney.stream().map(banknote -> banknote.getDenomination().getDenominationValue()).reduce(0L, Long::sum);
-        when(moneyStorageService.retrieveMoney(sum)).thenReturn(expectedMoney);
-        Assertions.assertThat(atm.withdrawMoney(sum)).hasSize(3).containsAll(expectedMoney);
+        when(moneyStorageService.retrieveMoney(StrategyEnum.REGULAR, sum)).thenReturn(expectedMoney);
+        Assertions.assertThat(atm.withdrawMoney(StrategyEnum.REGULAR, sum)).hasSize(3).containsAll(expectedMoney);
     }
 
     @Test

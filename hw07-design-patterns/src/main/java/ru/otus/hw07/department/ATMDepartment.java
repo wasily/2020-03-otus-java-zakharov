@@ -1,5 +1,6 @@
 package ru.otus.hw07.department;
 
+import ru.otus.hw07.banknotestrategy.StrategyEnum;
 import ru.otus.hw07.domain.Banknote;
 import ru.otus.hw07.services.ATM;
 
@@ -19,7 +20,7 @@ public class ATMDepartment implements ATM {
     }
 
     @Override
-    public List<Banknote> withdrawMoney(long amount) {
+    public List<Banknote> withdrawMoney(StrategyEnum strategyEnum, long amount) {
         throw new UnsupportedOperationException("Illegal operation on department");
     }
 

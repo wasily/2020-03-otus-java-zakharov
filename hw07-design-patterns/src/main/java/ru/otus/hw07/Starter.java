@@ -1,22 +1,21 @@
 package ru.otus.hw07;
 
+import ru.otus.hw07.banknotestrategy.StrategyEnum;
 import ru.otus.hw07.department.ATMDepartment;
 import ru.otus.hw07.domain.Banknote;
 import ru.otus.hw07.domain.Denomination;
 import ru.otus.hw07.services.*;
 
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 public class Starter {
     public static void main(String[] args) {
-        Comparator<Denomination> denominationComparator =
-                (first, second) -> Long.compare(second.getDenominationValue(), first.getDenominationValue());
-        TreeMap<Denomination, CassetteService> cassetteMap1 = new TreeMap<>(denominationComparator);
-        TreeMap<Denomination, CassetteService> cassetteMap2 = new TreeMap<>(denominationComparator);
-        TreeMap<Denomination, CassetteService> cassetteMap3 = new TreeMap<>(denominationComparator);
+        Map<Denomination, CassetteService> cassetteMap1 = new TreeMap<>();
+        Map<Denomination, CassetteService> cassetteMap2 = new TreeMap<>();
+        Map<Denomination, CassetteService> cassetteMap3 = new TreeMap<>();
         for (var den : Denomination.values()) {
             cassetteMap1.put(den, new CassetteServiceImpl(0));
             cassetteMap2.put(den, new CassetteServiceImpl(0));
@@ -44,7 +43,7 @@ public class Starter {
         System.out.println("atm3 deposit " + atm3.depositMoney(List.of(new Banknote(Denomination.TWO_HUNDRED))));
         System.out.println("atm3 balance " + atm3.getAvailableMoneyCount());
         System.out.println("department balance " + atmDepartment.getAvailableMoneyCount());
-        System.out.println("atm2 withdraw " + atm2.withdrawMoney(1_100));
+        System.out.println("atm2 withdraw " + atm2.withdrawMoney(StrategyEnum.REGULAR, 1_100));
         System.out.println("atm2 balance " + atm2.getAvailableMoneyCount());
         System.out.println("atm1 balance " + atm1.getAvailableMoneyCount());
         System.out.println("department balance " + atmDepartment.getAvailableMoneyCount());

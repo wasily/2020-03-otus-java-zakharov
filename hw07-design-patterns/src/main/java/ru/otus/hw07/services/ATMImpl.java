@@ -1,5 +1,6 @@
 package ru.otus.hw07.services;
 
+import ru.otus.hw07.banknotestrategy.StrategyEnum;
 import ru.otus.hw07.domain.Banknote;
 import ru.otus.hw07.domain.NoSuitableBanknotesAvailableException;
 import ru.otus.hw07.domain.NotSufficientFundsException;
@@ -21,9 +22,9 @@ public class ATMImpl implements ATM {
     }
 
     @Override
-    public List<Banknote> withdrawMoney(long amount) {
+    public List<Banknote> withdrawMoney(StrategyEnum strategyEnum, long amount) {
         try {
-            return moneyStorageService.retrieveMoney(amount);
+            return moneyStorageService.retrieveMoney(strategyEnum, amount);
         } catch (NoSuitableBanknotesAvailableException | NotSufficientFundsException e) {
             e.printStackTrace();
         }
