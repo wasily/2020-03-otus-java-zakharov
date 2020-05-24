@@ -3,8 +3,7 @@ package ru.otus.hw07.services;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CassetteServiceImplTest {
     private CassetteService cassetteService;
@@ -51,5 +50,14 @@ class CassetteServiceImplTest {
     @Test
     void getReturnBanknotesCount() {
         assertEquals(initialBanknoteCount, cassetteService.getBanknotesCount());
+    }
+
+    @Test
+    void shouldCopy() {
+        int initCount = 42;
+        CassetteService origCS = new CassetteServiceImpl(initCount);
+        CassetteService copyCS = origCS.copy();
+        assertNotSame(origCS, copyCS);
+        assertEquals(origCS.getBanknotesCount(), copyCS.getBanknotesCount());
     }
 }

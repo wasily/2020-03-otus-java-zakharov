@@ -73,4 +73,25 @@ public class MoneyStorageServiceImpl implements MoneyStorageService {
     public int getAvailableBanknotesCount(Denomination banknoteDenomination) {
         return cassettesMap.get(banknoteDenomination).getBanknotesCount();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MoneyStorageServiceImpl that = (MoneyStorageServiceImpl) o;
+        return cassettesMap.equals(that.cassettesMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cassettesMap);
+    }
+
+    @Override
+    public MoneyStorageService copy() {
+        TreeMap<Denomination, CassetteService> cassettesMapCopy = new TreeMap<>(denominationComparator);
+        cassettesMapCopy.putAll(cassettesMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().copy())));
+        return new MoneyStorageServiceImpl(cassettesMapCopy);
+    }
 }

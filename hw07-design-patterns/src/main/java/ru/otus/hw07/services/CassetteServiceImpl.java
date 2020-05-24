@@ -29,4 +29,9 @@ public class CassetteServiceImpl implements CassetteService {
     public int getBanknotesCount() {
         return storedBanknotesCount;
     }
+
+    @Override
+    public CassetteService copy() {
+        return new CassetteServiceImpl(storedBanknotesCount);
+    }
 }

@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 public class ATMDepartment implements ATM {
-    private final Set<ATM> atmSet;
+    private Set<ATM> atmSet;
+    private final Originator originator = new Originator();
 
     public ATMDepartment(Set<ATM> atmSet) {
         this.atmSet = atmSet;
@@ -38,10 +39,19 @@ public class ATMDepartment implements ATM {
     }
 
     public void resetATMs() {
-        throw new UnsupportedOperationException("not yet implemented");
+        this.atmSet = originator.restoreState();
+    }
+
+    public void saveATMs() {
+        originator.saveState(this.atmSet);
     }
 
     public int getATMCount() {
         return atmSet.size();
+    }
+
+    @Override
+    public ATM copy() {
+        throw new UnsupportedOperationException("Illegal operation on department");
     }
 }

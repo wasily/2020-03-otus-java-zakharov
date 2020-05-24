@@ -15,18 +15,18 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Тест сервиса хранения денег ")
 class MoneyStorageServiceImplTest {
     private MoneyStorageService moneyStorageService;
+    private final int initBanknotesCount = 0;
 
     @BeforeEach
     public void setUpMoneyStorage() {
         Map<Denomination, CassetteService> cassetteMap = new TreeMap<>();
         for (var den : Denomination.values()) {
-            cassetteMap.put(den, new CassetteServiceImpl(0));
+            cassetteMap.put(den, new CassetteServiceImpl(initBanknotesCount));
         }
         moneyStorageService = new MoneyStorageServiceImpl(cassetteMap);
     }
@@ -121,16 +121,33 @@ class MoneyStorageServiceImplTest {
     @Test
     public void shouldReturnBanknotesCount() throws NotSufficientFundsException, NoSuitableBanknotesAvailableException {
         for (var denomination : Denomination.values()) {
-            assertEquals(0, moneyStorageService.getAvailableBanknotesCount(denomination));
+            assertEquals(initBanknotesCount, moneyStorageService.getAvailableBanknotesCount(denomination));
 
             moneyStorageService.storeMoney(List.of(new Banknote(denomination)));
-            assertEquals(1, moneyStorageService.getAvailableBanknotesCount(denomination));
+            assertEquals(initBanknotesCount + 1, moneyStorageService.getAvailableBanknotesCount(denomination));
 
             moneyStorageService.storeMoney(Collections.emptyList());
-            assertEquals(1, moneyStorageService.getAvailableBanknotesCount(denomination));
+            assertEquals(initBanknotesCount + 1, moneyStorageService.getAvailableBanknotesCount(denomination));
 
             moneyStorageService.retrieveMoney(StrategyEnum.REGULAR, denomination.getDenominationValue());
-            assertEquals(0, moneyStorageService.getAvailableBanknotesCount(denomination));
+            assertEquals(initBanknotesCount, moneyStorageService.getAvailableBanknotesCount(denomination));
         }
+    }
+
+    @Test
+    void shouldCopy() {
+        int initialBanknotesCount = 5;
+        Map<Denomination, CassetteService> cassetteMap = new TreeMap<>();
+        for (var den : Denomination.values()) {
+            cassetteMap.put(den, new CassetteServiceImpl(initialBanknotesCount));
+        }
+        MoneyStorageService origMS = new MoneyStorageServiceImpl(cassetteMap);
+        MoneyStorageService copyMS = origMS.copy();
+        assertNotEquals(origMS, copyMS);
+        for (var den : Denomination.values()) {
+            assertEquals(copyMS.getAvailableBanknotesCount(den),
+                    origMS.getAvailableBanknotesCount(den));
+        }
+        assertEquals(origMS.getAvailableMoneyCount(), copyMS.getAvailableMoneyCount());
     }
 }

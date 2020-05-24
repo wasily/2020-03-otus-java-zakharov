@@ -8,7 +8,7 @@ import ru.otus.hw07.domain.NotSufficientFundsException;
 
 import java.util.List;
 
-public interface MoneyStorageService {
+public interface MoneyStorageService extends MoneyStoragePrototype {
     long storeMoney(List<Banknote> moneyBundle);
     List<Banknote> retrieveMoney(StrategyEnum strategyEnum, long amount) throws NoSuitableBanknotesAvailableException, NotSufficientFundsException;
     long getAvailableMoneyCount();

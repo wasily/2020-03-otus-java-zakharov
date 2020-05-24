@@ -10,8 +10,11 @@ import ru.otus.hw07.domain.NoSuitableBanknotesAvailableException;
 import ru.otus.hw07.domain.NotSufficientFundsException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,5 +53,19 @@ class ATMImplTest {
         long expectedBalance = 1984;
         when(moneyStorageService.getAvailableMoneyCount()).thenReturn(expectedBalance);
         assertEquals(expectedBalance, atm.getAvailableMoneyCount());
+    }
+
+    @Test
+    void shouldCopy() {
+        int initialBanknotesCount = 5;
+        Map<Denomination, CassetteService> cassetteMap = new TreeMap<>();
+        for (var den : Denomination.values()) {
+            cassetteMap.put(den, new CassetteServiceImpl(initialBanknotesCount));
+        }
+        MoneyStorageService origMS = new MoneyStorageServiceImpl(cassetteMap);
+        ATM origATM = new ATMImpl(origMS);
+        ATM copyATM = origATM.copy();
+        assertNotEquals(origATM, copyATM);
+        assertEquals(origMS.getAvailableMoneyCount(), copyATM.getAvailableMoneyCount());
     }
 }

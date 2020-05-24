@@ -48,4 +48,9 @@ public class ATMImpl implements ATM {
     public int hashCode() {
         return Objects.hash(moneyStorageService);
     }
+
+    @Override
+    public ATM copy() {
+        return new ATMImpl(moneyStorageService.copy());
+    }
 }

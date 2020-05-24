@@ -17,9 +17,9 @@ public class Starter {
         Map<Denomination, CassetteService> cassetteMap2 = new TreeMap<>();
         Map<Denomination, CassetteService> cassetteMap3 = new TreeMap<>();
         for (var den : Denomination.values()) {
-            cassetteMap1.put(den, new CassetteServiceImpl(0));
-            cassetteMap2.put(den, new CassetteServiceImpl(0));
-            cassetteMap3.put(den, new CassetteServiceImpl(0));
+            cassetteMap1.put(den, new CassetteServiceImpl(5));
+            cassetteMap2.put(den, new CassetteServiceImpl(6));
+            cassetteMap3.put(den, new CassetteServiceImpl(7));
         }
         ATM atm1 = new ATMImpl(new MoneyStorageServiceImpl(cassetteMap1));
         ATM atm2 = new ATMImpl(new MoneyStorageServiceImpl(cassetteMap2));
@@ -46,6 +46,13 @@ public class Starter {
         System.out.println("atm2 withdraw " + atm2.withdrawMoney(StrategyEnum.REGULAR, 1_100));
         System.out.println("atm2 balance " + atm2.getAvailableMoneyCount());
         System.out.println("atm1 balance " + atm1.getAvailableMoneyCount());
-        System.out.println("department balance " + atmDepartment.getAvailableMoneyCount());
+        System.out.println("department balance before save " + atmDepartment.getAvailableMoneyCount());
+        atmDepartment.saveATMs();
+        System.out.println("+ " + atm1.depositMoney(List.of(new Banknote(Denomination.FIVE_HUNDRED))));
+        System.out.println("+ " + atm2.depositMoney(List.of(new Banknote(Denomination.TWO_THOUSAND))));
+        System.out.println("- 100 " + atm3.withdrawMoney(StrategyEnum.REGULAR, 100));
+        System.out.println("department balance before restore " + atmDepartment.getAvailableMoneyCount());
+        atmDepartment.resetATMs();
+        System.out.println("department balance after restore " + atmDepartment.getAvailableMoneyCount());
     }
 }
