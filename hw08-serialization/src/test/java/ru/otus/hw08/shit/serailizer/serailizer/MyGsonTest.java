@@ -64,8 +64,25 @@ class MyGsonTest {
     }
 
     @Test
-    void testCollection() {
-
+    void testWrapperTypes() {
+        Short aShort = 12;
+        Integer integer = 3456;
+        Long aLong = 2345234523L;
+        Float aFloat = 3456.45678567f;
+        Double aDouble = 0.000000000000000002345d;
+        Byte aByte = 1;
+        Boolean bool = true;
+        Character character = 'f';
+        String str = "ASDFGHJK";
+        assertEquals(aShort, gson.fromJson(myGson.toJson(aShort), Short.class));
+        assertEquals(integer, gson.fromJson(myGson.toJson(integer), Integer.class));
+        assertEquals(aLong, gson.fromJson(myGson.toJson(aLong), Long.class));
+        assertEquals(aFloat, gson.fromJson(myGson.toJson(aFloat), Float.class));
+        assertEquals(aDouble, gson.fromJson(myGson.toJson(aDouble), Double.class));
+        assertEquals(aByte, gson.fromJson(myGson.toJson(aByte), Byte.class));
+        assertEquals(bool, gson.fromJson(myGson.toJson(bool), Boolean.class));
+        assertEquals(character, gson.fromJson(myGson.toJson(character), Character.class));
+        assertEquals(str, gson.fromJson(myGson.toJson(str), String.class));
     }
 
     @Test

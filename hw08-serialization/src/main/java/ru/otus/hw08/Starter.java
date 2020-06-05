@@ -28,16 +28,17 @@ public class Starter {
 
         System.out.println("---collection---");
         System.out.println(myGson.toJson(List.of("asdfas", "34534534")));
-        var arrlist = new ArrayList<Double>();
-        arrlist.add(0.023423);
-        arrlist.add(3456345643560.023423);
-        arrlist.add(3.043523423);
-        System.out.println(myGson.toJson(arrlist));
+        var doubleArrayList = new ArrayList<Double>();
+        doubleArrayList.add(0.023423);
+        doubleArrayList.add(3456345643560.023423);
+        doubleArrayList.add(3.043523423);
+        System.out.println(myGson.toJson(doubleArrayList));
         var set = new HashSet<Character>();
         set.add('c');
         set.add('a');
         set.add('9');
         System.out.println(myGson.toJson(set));
+        System.out.println(myGson.toJson(List.of(1,4,665)));
 
         System.out.println("---array---");
         System.out.println(myGson.toJson(new Float[]{100000.56784576567f, 3456345634562f, 0.00000003f}));
