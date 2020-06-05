@@ -6,8 +6,8 @@ import ru.otus.hw08.serializer.entries.WrappedTypeEntry;
 import ru.otus.hw08.serializer.entries.PrimitiveEntry;
 
 public interface Serializer {
-   void visit(ArrayEntry arrayEntry);
-   void visit(CollectionEntry collectionEntry);
-   void visit(PrimitiveEntry primitiveEntry);
-   void visit(WrappedTypeEntry wrappedTypeEntry);
+   String visit(ArrayEntry arrayEntry);
+   String visit(CollectionEntry collectionEntry);
+   String visit(PrimitiveEntry primitiveEntry);
+   String visit(WrappedTypeEntry wrappedTypeEntry);
 }

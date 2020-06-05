@@ -14,7 +14,7 @@ public class WrappedTypeEntry implements Entry {
     }
 
     @Override
-    public void serialize(Serializer serializer) {
-        serializer.visit(this);
+    public String serialize(Serializer serializer) {
+        return serializer.visit(this);
     }
 }

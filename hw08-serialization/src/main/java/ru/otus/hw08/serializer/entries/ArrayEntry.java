@@ -14,7 +14,7 @@ public class ArrayEntry implements Entry {
     }
 
     @Override
-    public void serialize(Serializer serializer) {
-        serializer.visit(new ArrayEntry(object));
+    public String serialize(Serializer serializer) {
+        return serializer.visit(new ArrayEntry(object));
     }
 }

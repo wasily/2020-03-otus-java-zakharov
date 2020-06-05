@@ -14,7 +14,7 @@ public class CollectionEntry implements Entry {
     }
 
     @Override
-    public void serialize(Serializer serializer) {
-        serializer.visit(new CollectionEntry(object));
+    public String serialize(Serializer serializer) {
+        return serializer.visit(new CollectionEntry(object));
     }
 }

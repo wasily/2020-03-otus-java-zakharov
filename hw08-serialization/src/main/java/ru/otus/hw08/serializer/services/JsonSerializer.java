@@ -12,45 +12,78 @@ import java.util.List;
 
 public class JsonSerializer implements Serializer {
     @Override
-    public void visit(ArrayEntry arrayEntry) {
-        System.out.println("ArrayEntry jsonSerializer");
+    public String visit(ArrayEntry arrayEntry) {
+        if (arrayEntry.getObject() == null) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder();
         Object object = arrayEntry.getObject();
         Class ofArray = object.getClass().getComponentType();
         if (ofArray.isPrimitive()) {
             List ar = new ArrayList();
             int length = Array.getLength(object);
-            for (int i = 0; i < length; i++) {
-                ar.add(Array.get(object, i));
+            if (ofArray.getTypeName().equals("char")) {
+                for (int i = 0; i < length; i++) {
+                    ar.add("\"" + Array.get(object, i) + "\"");
+                }
+            } else {
+                for (int i = 0; i < length; i++) {
+                    ar.add(Array.get(object, i));
+                }
             }
-            System.out.println(ar);
+            sb.append(ar);
+        } else if (ofArray.getTypeName().equals("java.lang.String") || ofArray.getTypeName().equals("java.lang.Character")) {
+            List stringList = new ArrayList();
+            for (Object str : (Object[]) object) {
+                stringList.add("\"" + str + "\"");
+            }
+            sb.append(stringList);
         } else {
-            for (Object o : (Object[]) object) {
-                System.out.println(o);
+            List list = new ArrayList();
+            for (Object obj : (Object[]) object) {
+                list.add(obj);
+            }
+            sb.append(list);
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(CollectionEntry collectionEntry) {
+        if (collectionEntry.getObject() == null) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder();
+        Collection res = new ArrayList();
+        Collection collection = (Collection) collectionEntry.getObject();
+
+        var elementClass = ((Collection) collectionEntry.getObject()).iterator().next().getClass();
+        if (elementClass == String.class || elementClass == Character.class) {
+            for (Object e : collection) {
+                res.add("\"" + e + "\"");
+            }
+        } else {
+            for (Object e : collection) {
+                res.add(e);
             }
         }
+        return sb.append(res).toString();
     }
 
     @Override
-    public void visit(CollectionEntry collectionEntry) {
-        System.out.println("CollectionEntry json serializer");
-        for (Object e : (Collection) collectionEntry.getObject()) {
-            System.out.println(e);
+    public String visit(PrimitiveEntry primitiveEntry) {
+        if (primitiveEntry.getObject().getClass() == Character.class) {
+            return "\"" + primitiveEntry.getObject() + "\"";
         }
+        return primitiveEntry.getObject().toString();
     }
 
     @Override
-    public void visit(PrimitiveEntry primitiveEntry) {
-        System.out.println("PrimitiveEntry json serializer");
-        System.out.println(primitiveEntry.getObject());
-    }
-
-    @Override
-    public void visit(WrappedTypeEntry wrappedTypeEntry) {
-        System.out.println("ObjectEntry json serializer");
-        if (wrappedTypeEntry.getObject() instanceof String) {
-            System.out.println("String: " + wrappedTypeEntry.getObject());
+    public String visit(WrappedTypeEntry wrappedTypeEntry) {
+        if (wrappedTypeEntry.getObject() instanceof String || wrappedTypeEntry.getObject() instanceof Character) {
+            return "\"" + wrappedTypeEntry.getObject() + "\"";
         } else {
-            System.out.println(wrappedTypeEntry.getObject());
+            return wrappedTypeEntry.getObject().toString();
         }
     }
 }

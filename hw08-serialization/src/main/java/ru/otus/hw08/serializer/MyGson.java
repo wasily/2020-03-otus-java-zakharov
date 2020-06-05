@@ -14,37 +14,46 @@ public class MyGson {
     private final Serializer serializer = new JsonSerializer();
 
     public String toJson(Object object) {
+        if (object == null) {
+            return "";
+        }
+        StringBuilder stringBuilder = new StringBuilder();
         if (object.getClass().isArray()) {
-            new ArrayEntry(object).serialize(serializer);
+            stringBuilder.append(new ArrayEntry(object).serialize(serializer));
         } else if (object instanceof Collection) {
-            new CollectionEntry(object).serialize(serializer);
+            stringBuilder.append(new CollectionEntry(object).serialize(serializer));
         } else if (isWrappedType(object)) {
-            new WrappedTypeEntry(object).serialize(serializer);
+            stringBuilder.append(new WrappedTypeEntry(object).serialize(serializer));
         } else {
+            stringBuilder.append("{");
             for (Field field : object.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 try {
                     if (field.getType().isPrimitive()) {
-                        System.out.println("field name: " + field.getName());
-                        new PrimitiveEntry(field.get(object)).serialize(serializer);
+                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
+                        stringBuilder.append(new PrimitiveEntry(field.get(object)).serialize(serializer));
                     } else if (field.getType().isArray()) {
-                        System.out.println("field name: " + field.getName());
-                        new ArrayEntry(field.get(object)).serialize(serializer);
-                    } else if (field.getType().isInstance(Collection.class)) {
-                        System.out.println("field name: " + field.getName());
-                        new CollectionEntry(field.get(object)).serialize(serializer);
+                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
+                        stringBuilder.append(new ArrayEntry(field.get(object)).serialize(serializer));
+                    } else if (field.getType() == Collection.class) {//  field.get(object) instanceof Collection) {
+                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
+                        stringBuilder.append(new CollectionEntry(field.get(object)).serialize(serializer));
                     } else if (isWrappedType(field.get(object))) {
-                        System.out.println("field name: " + field.getName());
-                        new WrappedTypeEntry(field.get(object)).serialize(serializer);
+                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
+                        stringBuilder.append(new WrappedTypeEntry(field.get(object)).serialize(serializer));
                     } else {
-                        toJson(field.get(object));
+                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
+                        stringBuilder.append(toJson(field.get(object)));
                     }
+                    stringBuilder.append(",");
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
+            stringBuilder.deleteCharAt(stringBuilder.length()-1);
+            stringBuilder.append("}");
         }
-        return "sdfsd";
+        return stringBuilder.toString();
     }
 
     private boolean isWrappedType(Object object) {
