@@ -50,7 +50,7 @@ public class JsonSerializer implements Serializer {
 
     @Override
     public String visit(CollectionEntry collectionEntry) {
-        if (collectionEntry.getObject() == null) {
+        if (collectionEntry.getObject() == null || ((Collection) collectionEntry.getObject()).size() == 0) {
             return "[]";
         }
         StringBuilder sb = new StringBuilder();

@@ -6,10 +6,7 @@ import ru.otus.hw08.serializer.SampleInnerObject;
 import ru.otus.hw08.serializer.SampleObject;
 import ru.otus.hw08.serializer.SampleOuterObject;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Starter {
     public static void main(String[] args) {
@@ -25,6 +22,7 @@ public class Starter {
         System.out.println(myGson.toJson(7.1D));
         System.out.println(myGson.toJson('c'));
         System.out.println(myGson.toJson(true));
+        System.out.println(myGson.toJson(null));
 
         System.out.println("---collection---");
         System.out.println(myGson.toJson(List.of("asdfas", "34534534")));
@@ -38,14 +36,18 @@ public class Starter {
         set.add('a');
         set.add('9');
         System.out.println(myGson.toJson(set));
-        System.out.println(myGson.toJson(List.of(1,4,665)));
+        System.out.println(myGson.toJson(List.of(1, 4, 665)));
+        System.out.println(myGson.toJson(Collections.EMPTY_LIST));
 
         System.out.println("---array---");
         System.out.println(myGson.toJson(new Float[]{100000.56784576567f, 3456345634562f, 0.00000003f}));
         System.out.println(myGson.toJson(new Boolean[]{true, false, false, true}));
         System.out.println(myGson.toJson(new String[]{"a", "s", "45678"}));
+        System.out.println(myGson.toJson(new String[]{}));
         System.out.println(myGson.toJson(new char[]{'a', 's', '4'}));
         System.out.println(myGson.toJson(new Character[]{'s', 'b', '5'}));
+        System.out.println(myGson.toJson(new Character[]{}));
+        System.out.println(myGson.toJson(new int[]{}));
 
         System.out.println("---string---");
         System.out.println(myGson.toJson("asdfasd"));
