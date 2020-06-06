@@ -1,10 +1,12 @@
 package ru.otus.hw08.serializer;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 
 import java.util.Collection;
 
 @Builder
+@EqualsAndHashCode
 public class SampleObject {
     private final String string;
     private final int intValue;

@@ -91,11 +91,13 @@ class MyGsonTest {
         SampleInnerObject sampleInnerObject = new SampleInnerObject(3454, List.of("345_123", "fghjmvbmn345"));
         assertThat(sampleInnerObject)
                 .isEqualToComparingFieldByField(gson.fromJson(myGson.toJson(sampleInnerObject), SampleInnerObject.class));
+        assertEquals(sampleInnerObject, gson.fromJson(myGson.toJson(sampleInnerObject), SampleInnerObject.class));
 
         SampleOuterObject sampleOuterObject = new SampleOuterObject(4,
                 new Float[]{2345345F, -14F}, List.of("123", "345"), sampleInnerObject);
         assertThat(sampleOuterObject).usingRecursiveComparison()
                 .isEqualTo(gson.fromJson(myGson.toJson(sampleOuterObject), SampleOuterObject.class));
+        assertEquals(sampleOuterObject, gson.fromJson(myGson.toJson(sampleOuterObject), SampleOuterObject.class));
     }
 
 
@@ -107,5 +109,6 @@ class MyGsonTest {
                 .stringCollection(List.of("!111", "435%$%^$")).characterCollection(List.of('g', 'y')).doubleCollection(List.of(2345.2345, 6465.98709870789)).build();
         assertThat(sampleObject).usingRecursiveComparison()
                 .isEqualTo(gson.fromJson(myGson.toJson(sampleObject), SampleObject.class));
+        assertEquals(sampleObject, gson.fromJson(myGson.toJson(sampleObject), SampleObject.class));
     }
 }

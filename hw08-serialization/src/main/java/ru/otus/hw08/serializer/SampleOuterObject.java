@@ -1,7 +1,10 @@
 package ru.otus.hw08.serializer;
 
+import lombok.EqualsAndHashCode;
+
 import java.util.Collection;
 
+@EqualsAndHashCode
 public class SampleOuterObject {
     private final int intValue;
     private final Float[] floats;
