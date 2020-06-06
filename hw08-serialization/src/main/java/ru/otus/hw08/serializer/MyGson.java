@@ -2,8 +2,8 @@ package ru.otus.hw08.serializer;
 
 import ru.otus.hw08.serializer.entries.ArrayEntry;
 import ru.otus.hw08.serializer.entries.CollectionEntry;
-import ru.otus.hw08.serializer.entries.WrappedTypeEntry;
 import ru.otus.hw08.serializer.entries.PrimitiveEntry;
+import ru.otus.hw08.serializer.entries.WrappedTypeEntry;
 import ru.otus.hw08.serializer.services.JsonSerializer;
 import ru.otus.hw08.serializer.services.Serializer;
 
@@ -30,27 +30,22 @@ public class MyGson {
                 field.setAccessible(true);
                 try {
                     if (field.getType().isPrimitive()) {
-                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
-                        stringBuilder.append(new PrimitiveEntry(field.get(object)).serialize(serializer));
+                        stringBuilder.append(getJsonEntry(field.getName(), new PrimitiveEntry(field.get(object)).serialize(serializer)));
                     } else if (field.getType().isArray()) {
-                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
-                        stringBuilder.append(new ArrayEntry(field.get(object)).serialize(serializer));
-                    } else if (field.getType() == Collection.class) {//  field.get(object) instanceof Collection) {
-                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
-                        stringBuilder.append(new CollectionEntry(field.get(object)).serialize(serializer));
+                        stringBuilder.append(getJsonEntry(field.getName(), new ArrayEntry(field.get(object)).serialize(serializer)));
+                    } else if (field.getType() == Collection.class) {
+                        stringBuilder.append(getJsonEntry(field.getName(), new CollectionEntry(field.get(object)).serialize(serializer)));
                     } else if (isWrappedType(field.get(object))) {
-                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
-                        stringBuilder.append(new WrappedTypeEntry(field.get(object)).serialize(serializer));
+                        stringBuilder.append(getJsonEntry(field.getName(), new WrappedTypeEntry(field.get(object)).serialize(serializer)));
                     } else {
-                        stringBuilder.append("\"").append(field.getName()).append("\"").append(" : ");
-                        stringBuilder.append(toJson(field.get(object)));
+                        stringBuilder.append(getJsonEntry(field.getName(), toJson(field.get(object))));
                     }
                     stringBuilder.append(",");
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
-            stringBuilder.deleteCharAt(stringBuilder.length()-1);
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
             stringBuilder.append("}");
         }
         return stringBuilder.toString();
@@ -66,5 +61,9 @@ public class MyGson {
                 object instanceof Character ||
                 object instanceof Boolean ||
                 object instanceof String;
+    }
+
+    private String getJsonEntry(String fieldName, String value) {
+        return "\"" + fieldName + "\"" + " : " + value;
     }
 }

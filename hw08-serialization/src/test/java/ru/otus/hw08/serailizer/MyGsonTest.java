@@ -1,9 +1,10 @@
-package ru.otus.hw08.shit.serailizer.serailizer;
+package ru.otus.hw08.serailizer;
 
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import ru.otus.hw08.serializer.MyGson;
 import ru.otus.hw08.serializer.SampleInnerObject;
+import ru.otus.hw08.serializer.SampleObject;
 import ru.otus.hw08.serializer.SampleOuterObject;
 
 import java.util.List;
@@ -95,5 +96,16 @@ class MyGsonTest {
                 new Float[]{2345345F, -14F}, List.of("123", "345"), sampleInnerObject);
         assertThat(sampleOuterObject).usingRecursiveComparison()
                 .isEqualTo(gson.fromJson(myGson.toJson(sampleOuterObject), SampleOuterObject.class));
+    }
+
+
+    @Test
+    void testObject() {
+        SampleObject sampleObject = SampleObject.builder().aChar('a').aFloat(0.000000000345f).aLong(5_000_000_000L).intValue(234356)
+                .string("Test string").chars(new char[]{'q', 'y'}).longArray(new long[]{32345L, 345634565L})
+                .strings(new String[]{"sdfgsfd", "@#$%^&*4564"}).doublesArray(new Double[]{0.00032453456, 65465476476547.6476})
+                .stringCollection(List.of("!111", "435%$%^$")).characterCollection(List.of('g', 'y')).doubleCollection(List.of(2345.2345, 6465.98709870789)).build();
+        assertThat(sampleObject).usingRecursiveComparison()
+                .isEqualTo(gson.fromJson(myGson.toJson(sampleObject), SampleObject.class));
     }
 }
