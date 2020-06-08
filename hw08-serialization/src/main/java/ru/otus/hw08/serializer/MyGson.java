@@ -56,9 +56,8 @@ public class MyGson {
         try {
             if (field.get(object) == null || Array.getLength(field.get(object)) == 0) {
                 return getJsonEntry(field.getName(), "[]");
-            } else {
-                return getJsonEntry(field.getName(), getSerializedArray(field.get(object)));
             }
+            return getJsonEntry(field.getName(), getSerializedArray(field.get(object)));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             return "null";
@@ -69,19 +68,17 @@ public class MyGson {
     private String getSerializedArray(Object object) {
         if (Array.getLength(object) == 0) {
             return "[]";
-        } else {
-            if (!isWrappedType(Array.get(object, 0))) {
-                StringBuilder s = new StringBuilder();
-                s.append("[");
-                for (int i = 0; i < Array.getLength(object); i++) {
-                    s.append(toJson(Array.get(object, i))).append(",");
-                }
-                s.deleteCharAt(s.length() - 1).append("]");
-                return s.toString();
-            } else {
-                return new ArrayEntry(object).serialize(serializer);
-            }
         }
+        if (!isWrappedType(Array.get(object, 0))) {
+            StringBuilder s = new StringBuilder();
+            s.append("[");
+            for (int i = 0; i < Array.getLength(object); i++) {
+                s.append(toJson(Array.get(object, i))).append(",");
+            }
+            s.deleteCharAt(s.length() - 1).append("]");
+            return s.toString();
+        }
+        return new ArrayEntry(object).serialize(serializer);
     }
 
     private String getSerializedFieldCollection(Field field, Object object) {
