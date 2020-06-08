@@ -125,6 +125,6 @@ public class MyGson {
     }
 
     private String getJsonEntry(String fieldName, String value) {
-        return "\"" + fieldName + "\"" + " : " + value;
+        return "\"" + fieldName + "\"" + ":" + value;
     }
 }
