@@ -2,10 +2,7 @@ package ru.otus.hw08.serailizer;
 
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-import ru.otus.hw08.serializer.MyGson;
-import ru.otus.hw08.serializer.SampleInnerObject;
-import ru.otus.hw08.serializer.SampleObject;
-import ru.otus.hw08.serializer.SampleOuterObject;
+import ru.otus.hw08.serializer.*;
 
 import java.util.List;
 
@@ -111,4 +108,12 @@ class MyGsonTest {
                 .isEqualTo(gson.fromJson(myGson.toJson(sampleObject), SampleObject.class));
         assertEquals(sampleObject, gson.fromJson(myGson.toJson(sampleObject), SampleObject.class));
     }
+
+    @Test
+    void testInnerObjects() {
+        SampleObject2 sampleObject2 = new SampleObject2();
+        assertThat(myGson.toJson(sampleObject2)).isEqualTo(gson.toJson(sampleObject2));
+        assertEquals(sampleObject2, gson.fromJson(myGson.toJson(sampleObject2), SampleObject2.class));
+    }
+
 }
