@@ -8,42 +8,22 @@ import ru.otus.hw08.serializer.entries.WrappedTypeEntry;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class JsonSerializer implements Serializer {
     @Override
     public String visit(ArrayEntry arrayEntry) {
-        if (arrayEntry.getObject() == null) {
+        if (arrayEntry.getObject() == null || Array.getLength(arrayEntry.getObject()) == 0) {
             return "[]";
         }
         Object object = arrayEntry.getObject();
-        Class ofArray = object.getClass().getComponentType();
-        if (ofArray.isPrimitive()) {
-            List ar = new ArrayList();
-            int length = Array.getLength(object);
-            if (ofArray.arrayType() == char[].class) {
-                for (int i = 0; i < length; i++) {
-                    ar.add("\"" + Array.get(object, i) + "\"");
-                }
-            } else {
-                for (int i = 0; i < length; i++) {
-                    ar.add(Array.get(object, i));
-                }
-            }
-            return ar.toString();
-        } else if (ofArray.arrayType() == String[].class || ofArray.arrayType() == Character[].class) {
-            List stringList = new ArrayList();
-            for (Object str : (Object[]) object) {
-                stringList.add("\"" + str + "\"");
-            }
-            return stringList.toString();
-        } else {
-            List list = new ArrayList();
-            for (Object obj : (Object[]) object) {
-                list.add(obj);
-            }
-            return list.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < Array.getLength(object); i++) {
+            sb.append(visit(new WrappedTypeEntry(Array.get(object, i)))).append(",");
         }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("]");
+        return sb.toString();
     }
 
     @Override
