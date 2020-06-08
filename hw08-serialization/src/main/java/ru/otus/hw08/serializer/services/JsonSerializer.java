@@ -16,13 +16,12 @@ public class JsonSerializer implements Serializer {
         if (arrayEntry.getObject() == null) {
             return "[]";
         }
-        StringBuilder sb = new StringBuilder();
         Object object = arrayEntry.getObject();
         Class ofArray = object.getClass().getComponentType();
         if (ofArray.isPrimitive()) {
             List ar = new ArrayList();
             int length = Array.getLength(object);
-            if (ofArray.getTypeName().equals("char")) {
+            if (ofArray.arrayType() == char[].class) {
                 for (int i = 0; i < length; i++) {
                     ar.add("\"" + Array.get(object, i) + "\"");
                 }
@@ -31,21 +30,20 @@ public class JsonSerializer implements Serializer {
                     ar.add(Array.get(object, i));
                 }
             }
-            sb.append(ar);
-        } else if (ofArray.getTypeName().equals("java.lang.String") || ofArray.getTypeName().equals("java.lang.Character")) {
+            return ar.toString();
+        } else if (ofArray.arrayType() == String[].class || ofArray.arrayType() == Character[].class) {
             List stringList = new ArrayList();
             for (Object str : (Object[]) object) {
                 stringList.add("\"" + str + "\"");
             }
-            sb.append(stringList);
+            return stringList.toString();
         } else {
             List list = new ArrayList();
             for (Object obj : (Object[]) object) {
                 list.add(obj);
             }
-            sb.append(list);
+            return list.toString();
         }
-        return sb.toString();
     }
 
     @Override

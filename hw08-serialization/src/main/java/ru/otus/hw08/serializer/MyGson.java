@@ -15,7 +15,7 @@ public class MyGson {
 
     public String toJson(Object object) {
         if (object == null) {
-            return "";
+            return "null";
         }
         StringBuilder stringBuilder = new StringBuilder();
         if (object.getClass().isArray()) {
