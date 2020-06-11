@@ -58,6 +58,16 @@ public class UserDaoJdbc implements UserDao {
     }
 
     @Override
+    public void updateUser(User user) {
+
+    }
+
+    @Override
+    public void insertOrUpdate(User user) {
+
+    }
+
+    @Override
     public SessionManager getSessionManager() {
         return sessionManager;
     }

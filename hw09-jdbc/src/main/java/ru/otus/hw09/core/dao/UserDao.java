@@ -11,8 +11,9 @@ public interface UserDao {
 
     long insertUser(User user);
 
-    //void updateUser(User user);
-    //void insertOrUpdate(User user);
+    void updateUser(User user);
+
+    void insertOrUpdate(User user);
 
     SessionManager getSessionManager();
 }

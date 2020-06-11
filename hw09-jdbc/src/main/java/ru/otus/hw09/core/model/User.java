@@ -1,12 +1,18 @@
 package ru.otus.hw09.core.model;
 
+import ru.otus.hw09.jdbc.mapper.annotations.Id;
+
 /**
  * @author sergey
  * created on 03.02.19.
  */
 public class User {
-    private final long id;
-    private final String name;
+    @Id
+    private long id;
+    private String name;
+
+    public User() {
+    }
 
     public User(long id, String name) {
         this.id = id;
