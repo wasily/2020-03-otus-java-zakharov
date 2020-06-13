@@ -1,7 +1,7 @@
 package ru.otus.hw09.jdbc.mapper;
 
 public interface JdbcMapper<T> {
-    long insert(T objectData);
+    void insert(T objectData);
 
     void update(T objectData);
 
