@@ -35,10 +35,18 @@ class EntitySQLMetaDataImplTest {
 
     @Test
     void getInsertSql() {
-        var userSql = "select name,id from user where id = ?";
+        var userSql = "insert into user(name) values (?)";
         var accSql = "insert into account(rest,type) values (?,?)";
         assertEquals(userSql, userSQLMetaData.getInsertSql());
         assertEquals(accSql, accountSQLMetaData.getInsertSql());
+    }
+
+    @Test
+    void getUpdateSql(){
+        var userSql = "update user set name = ? where id = ?";
+        var accSql = "update account set rest = ?,type = ? where no = ?";
+        assertEquals(userSql, userSQLMetaData.getUpdateSql());
+        assertEquals(accSql, accountSQLMetaData.getUpdateSql());
     }
 
 }
