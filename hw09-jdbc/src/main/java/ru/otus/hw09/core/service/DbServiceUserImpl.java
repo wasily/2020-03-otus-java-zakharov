@@ -21,10 +21,11 @@ public class DbServiceUserImpl implements DBServiceUser {
         try (var sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
-                var userId = userDao.insertUser(user);
+                userDao.insertOrUpdate(user);
+                var userId = user.getId();
                 sessionManager.commitSession();
 
-                logger.info("created user: {}", userId);
+                logger.info("created/updated user: {}", userId);
                 return userId;
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);

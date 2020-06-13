@@ -49,8 +49,10 @@ public class UserDaoJdbc implements UserDao {
     @Override
     public long insertUser(User user) {
         try {
-            return dbExecutor.executeInsert(getConnection(), "insert into user(name) values (?)",
+            long id = dbExecutor.executeInsert(getConnection(), "insert into user(name) values (?)",
                     Collections.singletonList(user.getName()));
+            user.setId(id);
+            return id;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new UserDaoException(e);
@@ -59,12 +61,23 @@ public class UserDaoJdbc implements UserDao {
 
     @Override
     public void updateUser(User user) {
+        try {
+            dbExecutor.executeUpdate(user.getId(), getConnection(), "update user set name = ? where id = ?",
+                    Collections.singletonList(user.getName()));
 
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new UserDaoException(e);
+        }
     }
 
     @Override
     public void insertOrUpdate(User user) {
-
+        if (findById(user.getId()).isEmpty()) {
+            insertUser(user);
+        } else {
+            updateUser(user);
+        }
     }
 
     @Override
