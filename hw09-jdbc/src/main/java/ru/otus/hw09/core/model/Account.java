@@ -8,6 +8,15 @@ public class Account {
     @Id
     private long no;
     private String type;
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setRest(BigDecimal rest) {
+        this.rest = rest;
+    }
+
     private BigDecimal rest;
 
     public Account() {
