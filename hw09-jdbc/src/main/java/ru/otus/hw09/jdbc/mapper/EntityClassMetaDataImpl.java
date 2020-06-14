@@ -4,33 +4,33 @@ import ru.otus.hw09.jdbc.mapper.annotations.Id;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
-    private final Class<T> clazz;
+    private final String lowerCaseClassName;
     private final Map<Boolean, List<Field>> allFieldsMap;
+    private final List<Field> allFieldsList;
+    private final Constructor<T> noArgsConstructor;
 
+    @SuppressWarnings("unchecked")
     public EntityClassMetaDataImpl(Class<T> clazz) {
-        this.clazz = clazz;
+        lowerCaseClassName = clazz.getSimpleName().toLowerCase();
         allFieldsMap = Arrays.stream(clazz.getDeclaredFields())
                 .collect(Collectors.partitioningBy(field -> field.isAnnotationPresent(Id.class)));
+        allFieldsList = allFieldsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        noArgsConstructor = (Constructor<T>) Arrays.stream(clazz.getConstructors())
+                .filter(c -> c.getParameterCount() == 0).findFirst().orElseThrow();
     }
 
     @Override
     public String getName() {
-        return clazz.getSimpleName().toLowerCase();
+        return lowerCaseClassName;
     }
 
     @Override
     public Constructor<T> getConstructor() {
-        var constructors = clazz.getConstructors();
-        var noArgsConstructor = Arrays.stream(constructors)
-                .filter(c -> c.getParameterCount() == 0).findFirst().get();
-        return (Constructor<T>) noArgsConstructor;
+        return noArgsConstructor;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     @Override
     public List<Field> getAllFields() {
-        return allFieldsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        return Collections.unmodifiableList(allFieldsList);
     }
 
     @Override
