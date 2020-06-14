@@ -9,16 +9,19 @@ import java.util.stream.Collectors;
 
 public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
     private final String lowerCaseClassName;
-    private final Map<Boolean, List<Field>> allFieldsMap;
     private final List<Field> allFieldsList;
+    private final List<Field> fieldsWithoutIdList;
+    private final Field idField;
     private final Constructor<T> noArgsConstructor;
 
     @SuppressWarnings("unchecked")
     public EntityClassMetaDataImpl(Class<T> clazz) {
         lowerCaseClassName = clazz.getSimpleName().toLowerCase();
-        allFieldsMap = Arrays.stream(clazz.getDeclaredFields())
-                .collect(Collectors.partitioningBy(field -> field.isAnnotationPresent(Id.class)));
-        allFieldsList = allFieldsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        allFieldsList = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
+        idField = allFieldsList.stream().filter(field -> field.isAnnotationPresent(Id.class)).findFirst().orElseThrow();
+        fieldsWithoutIdList = new ArrayList<>();
+        fieldsWithoutIdList.addAll(allFieldsList);
+        fieldsWithoutIdList.remove(idField);
         noArgsConstructor = (Constructor<T>) Arrays.stream(clazz.getConstructors())
                 .filter(c -> c.getParameterCount() == 0).findFirst().orElseThrow();
     }
@@ -35,7 +38,7 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     @Override
     public Field getIdField() {
-        return allFieldsMap.get(true).get(0);
+        return idField;
     }
 
     @Override
@@ -45,6 +48,6 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     @Override
     public List<Field> getFieldsWithoutId() {
-        return allFieldsMap.get(false);
+        return Collections.unmodifiableList(fieldsWithoutIdList);
     }
 }
