@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class JdbcMapperImpl<T> implements JdbcMapper<T> {
@@ -30,25 +31,27 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
 
     @Override
     public void insert(T objectData) {
-        long id;
+        try {
+            long id = dbExecutor.executeInsert(sessionManager.getCurrentSession().getConnection(),
+                    entitySQLMetaData.getInsertSql(), getArgsList(objectData));
+            setIdField(objectData, id);
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private List<Object> getArgsList(T objectData) {
         var fieldsWithoutId = entityClassMetaData.getFieldsWithoutId();
-        var fieldsMap = fieldsWithoutId.stream().collect(Collectors.toMap(field -> field.getName(), field -> {
+        var fieldsMap = fieldsWithoutId.stream().collect(Collectors.toMap(Field::getName, field -> {
             try {
                 field.setAccessible(true);
                 return field.get(objectData);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
             return null;
         }));
-        var argsList = fieldsMap.keySet().stream().sorted(Comparator.naturalOrder()).map(fieldsMap::get).collect(Collectors.toList());
-        try {
-            id = dbExecutor.executeInsert(sessionManager.getCurrentSession().getConnection(),
-                    entitySQLMetaData.getInsertSql(), argsList);
-            setIdField(objectData, id);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        return fieldsMap.keySet().stream().sorted(Comparator.naturalOrder()).map(fieldsMap::get).collect(Collectors.toList());
     }
 
     private void setIdField(T objectData, long id) {
@@ -74,27 +77,16 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
 
     @Override
     public void update(T objectData) {
-        var fieldsWithoutId = entityClassMetaData.getFieldsWithoutId();
-        var fieldsMap = fieldsWithoutId.stream().collect(Collectors.toMap(field -> field.getName(), field -> {
-            try {
-                field.setAccessible(true);
-                return field.get(objectData);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }));
-        var argsList = fieldsMap.keySet().stream().sorted(Comparator.naturalOrder()).map(fieldsMap::get).collect(Collectors.toList());
         try {
             dbExecutor.executeUpdate(getId(objectData), sessionManager.getCurrentSession().getConnection(),
-                    entitySQLMetaData.getUpdateSql(), argsList);
+                    entitySQLMetaData.getUpdateSql(), getArgsList(objectData));
         } catch (SQLException e) {
             logger.error(e.getMessage());
         }
-
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void insertOrUpdate(T objectData) {
         if (findById(getId(objectData), (Class<T>) objectData.getClass()) == null) {
             insert(objectData);
@@ -128,6 +120,7 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
                 return (T) object;
             }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | SQLException e) {
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
         return null;

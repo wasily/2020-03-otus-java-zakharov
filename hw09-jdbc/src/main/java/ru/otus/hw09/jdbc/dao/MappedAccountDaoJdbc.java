@@ -4,9 +4,7 @@ package ru.otus.hw09.jdbc.dao;
 import ru.otus.hw09.core.dao.AccountDao;
 import ru.otus.hw09.core.model.Account;
 import ru.otus.hw09.core.sessionmanager.SessionManager;
-import ru.otus.hw09.jdbc.DbExecutorImpl;
 import ru.otus.hw09.jdbc.mapper.JdbcMapper;
-import ru.otus.hw09.jdbc.mapper.JdbcMapperImpl;
 import ru.otus.hw09.jdbc.sessionmanager.SessionManagerJdbc;
 
 import java.util.Optional;
@@ -15,9 +13,9 @@ public class MappedAccountDaoJdbc implements AccountDao {
     private final SessionManagerJdbc sessionManager;
     private final JdbcMapper<Account> jdbcMapper;
 
-    public MappedAccountDaoJdbc(SessionManagerJdbc sessionManager, DbExecutorImpl<Account> dbExecutor) {
+    public MappedAccountDaoJdbc(SessionManagerJdbc sessionManager, JdbcMapper<Account> jdbcMapper) {
         this.sessionManager = sessionManager;
-        this.jdbcMapper = new JdbcMapperImpl<>(Account.class, dbExecutor, sessionManager);
+        this.jdbcMapper = jdbcMapper;
     }
 
     @Override

@@ -11,6 +11,7 @@ import ru.otus.hw09.jdbc.DbExecutorImpl;
 import ru.otus.hw09.jdbc.dao.MappedAccountDaoJdbc;
 import ru.otus.hw09.jdbc.dao.MappedUserDaoJdbc;
 import ru.otus.hw09.jdbc.dao.UserDaoJdbc;
+import ru.otus.hw09.jdbc.mapper.JdbcMapperImpl;
 import ru.otus.hw09.jdbc.sessionmanager.SessionManagerJdbc;
 
 import javax.sql.DataSource;
@@ -47,7 +48,7 @@ public class DbServiceDemo {
         dbServiceUser.saveUser(user.get());
         dbServiceUser.getUser(id);
 
-        var mappedUserDaoJdbc = new MappedUserDaoJdbc(sessionManager, dbExecutor);
+        var mappedUserDaoJdbc = new MappedUserDaoJdbc(sessionManager, new JdbcMapperImpl<>(User.class, dbExecutor, sessionManager));
         var mappedDbServiceUser = new DbServiceUserImpl(mappedUserDaoJdbc);
 
         var user2 = new User(1234, "name2");
@@ -62,7 +63,7 @@ public class DbServiceDemo {
         mappedDbServiceUser.getUser(user3.getId());
 
         DbExecutorImpl<Account> accountDbExecutor = new DbExecutorImpl<>();
-        var mappedAccountDaoJdbc = new MappedAccountDaoJdbc(sessionManager, accountDbExecutor);
+        var mappedAccountDaoJdbc = new MappedAccountDaoJdbc(sessionManager, new JdbcMapperImpl<>(Account.class, accountDbExecutor, sessionManager));
         var mappedDBServiceAccount = new DbServiceAccountImpl(mappedAccountDaoJdbc);
 
         var account = new Account(123, "accountType", new BigDecimal("123.3465"));

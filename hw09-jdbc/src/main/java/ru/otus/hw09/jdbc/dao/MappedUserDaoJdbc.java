@@ -1,26 +1,21 @@
 package ru.otus.hw09.jdbc.dao;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.otus.hw09.core.dao.UserDao;
 import ru.otus.hw09.core.model.User;
 import ru.otus.hw09.core.sessionmanager.SessionManager;
-import ru.otus.hw09.jdbc.DbExecutorImpl;
 import ru.otus.hw09.jdbc.mapper.JdbcMapper;
-import ru.otus.hw09.jdbc.mapper.JdbcMapperImpl;
 import ru.otus.hw09.jdbc.sessionmanager.SessionManagerJdbc;
 
 import java.util.Optional;
 
 public class MappedUserDaoJdbc implements UserDao {
-    private static final Logger logger = LoggerFactory.getLogger(MappedUserDaoJdbc.class);
     private final SessionManagerJdbc sessionManager;
     private final JdbcMapper<User> jdbcMapper;
 
-    public MappedUserDaoJdbc(SessionManagerJdbc sessionManager, DbExecutorImpl<User> dbExecutor) {
+    public MappedUserDaoJdbc(SessionManagerJdbc sessionManager, JdbcMapper<User> jdbcMapper) {
         this.sessionManager = sessionManager;
-        this.jdbcMapper = new JdbcMapperImpl<>(User.class, dbExecutor, sessionManager);
+        this.jdbcMapper = jdbcMapper;
     }
 
     @Override
