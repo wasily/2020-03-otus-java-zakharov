@@ -10,6 +10,9 @@ repositories {
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
     implementation 'com.h2database:h2'
     implementation 'ch.qos.logback:logback-classic'
     implementation 'org.hibernate:hibernate-core'
