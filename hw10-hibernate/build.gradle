@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation 'com.h2database:h2'
     implementation 'ch.qos.logback:logback-classic'
+    implementation 'org.hibernate:hibernate-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     // https://mvnrepository.com/artifact/org.assertj/assertj-core
