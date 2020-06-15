@@ -1,6 +1,5 @@
 package ru.otus.hw10.core.service;
 
-
 import ru.otus.hw10.core.model.User;
 
 import java.util.Optional;

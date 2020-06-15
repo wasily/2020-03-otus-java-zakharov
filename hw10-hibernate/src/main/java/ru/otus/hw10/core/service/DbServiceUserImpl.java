@@ -4,11 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.hw10.core.dao.UserDao;
 import ru.otus.hw10.core.model.User;
+import ru.otus.hw10.core.sessionmanager.SessionManager;
 
 import java.util.Optional;
 
 public class DbServiceUserImpl implements DBServiceUser {
-    private static final Logger logger = LoggerFactory.getLogger(DbServiceUserImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(DbServiceUserImpl.class);
 
     private final UserDao userDao;
 
@@ -18,14 +19,14 @@ public class DbServiceUserImpl implements DBServiceUser {
 
     @Override
     public long saveUser(User user) {
-        try (var sessionManager = userDao.getSessionManager()) {
+        try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
                 userDao.insertOrUpdate(user);
-                var userId = user.getId();
+                long userId = user.getId();
                 sessionManager.commitSession();
 
-                logger.info("created/updated user: {}", userId);
+                logger.info("created user: {}", userId);
                 return userId;
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -35,9 +36,10 @@ public class DbServiceUserImpl implements DBServiceUser {
         }
     }
 
+
     @Override
     public Optional<User> getUser(long id) {
-        try (var sessionManager = userDao.getSessionManager()) {
+        try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
                 Optional<User> userOptional = userDao.findById(id);

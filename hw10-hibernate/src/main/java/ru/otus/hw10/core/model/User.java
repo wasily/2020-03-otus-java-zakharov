@@ -1,14 +1,18 @@
 package ru.otus.hw10.core.model;
 
-import ru.otus.hw10.jdbc.mapper.annotations.Id;
 
-/**
- * @author sergey
- * created on 03.02.19.
- */
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users")
 public class User {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private long id;
+
+    @Column(name = "name")
     private String name;
 
     public User() {
@@ -19,18 +23,17 @@ public class User {
         this.name = name;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
-
 
     public void setName(String name) {
         this.name = name;
