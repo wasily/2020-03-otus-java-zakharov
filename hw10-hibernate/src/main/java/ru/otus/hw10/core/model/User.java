@@ -11,11 +11,17 @@ import java.util.Set;
 
 import static javax.persistence.CascadeType.*;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "users")
+@NamedEntityGraph(
+        name = "userEntityGraph",
+        attributeNodes = {
+                @NamedAttributeNode("address"),
+                @NamedAttributeNode("phones")
+        }
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -26,9 +32,10 @@ public class User {
     private String name;
 
     @OneToMany(targetEntity = PhoneDataSet.class, cascade = {MERGE, PERSIST, DETACH, REFRESH}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", updatable = false)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private Set<PhoneDataSet> phones = new HashSet<>();
 
     @OneToOne(targetEntity = AddressDataSet.class, cascade = {MERGE, PERSIST, DETACH, REFRESH}, fetch = FetchType.LAZY)
     private AddressDataSet address;
 }
+

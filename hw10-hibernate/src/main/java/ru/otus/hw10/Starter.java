@@ -25,7 +25,8 @@ public class Starter {
 
         var address = new AddressDataSet(UUID.randomUUID().toString(),"some address");
         var phone = new PhoneDataSet(UUID.randomUUID().toString(), "1234567890");
-        User user = new User(0, "username", Set.of(phone),address);
+        var phone2 = new PhoneDataSet(UUID.randomUUID().toString(), "123-1234-34");
+        User user = new User(0, "username", Set.of(phone,phone2),address);
         long id = dbServiceUser.saveUser(user);
         dbServiceUser.getUser(id);
     }
