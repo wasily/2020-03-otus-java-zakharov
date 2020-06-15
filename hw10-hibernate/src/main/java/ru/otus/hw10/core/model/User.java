@@ -1,12 +1,22 @@
 package ru.otus.hw10.core.model;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
-@Entity
-@Table(name = "users")
+import static javax.persistence.CascadeType.*;
+
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
@@ -15,35 +25,10 @@ public class User {
     @Column(name = "name")
     private String name;
 
-    public User() {
-    }
+    @OneToMany(targetEntity = PhoneDataSet.class, cascade = {MERGE, PERSIST, DETACH, REFRESH}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", updatable = false)
+    private Set<PhoneDataSet> phones = new HashSet<>();
 
-    public User(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
+    @OneToOne(targetEntity = AddressDataSet.class, cascade = {MERGE, PERSIST, DETACH, REFRESH}, fetch = FetchType.LAZY)
+    private AddressDataSet address;
 }
