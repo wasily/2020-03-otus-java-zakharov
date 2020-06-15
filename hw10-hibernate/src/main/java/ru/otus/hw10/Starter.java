@@ -9,8 +9,6 @@ import ru.otus.hw10.hibernate.HibernateUtils;
 import ru.otus.hw10.hibernate.dao.UserDaoHibernate;
 import ru.otus.hw10.hibernate.sessionmanager.SessionManagerHibernate;
 
-import java.util.Optional;
-
 public class Starter {
     public static void main(String[] args) {
         SessionFactory sessionFactory = HibernateUtils.buildSessionFactory("hibernate.cfg.xml", User.class);
@@ -20,7 +18,6 @@ public class Starter {
         DBServiceUser dbServiceUser = new DbServiceUserImpl(userDao);
 
         long id = dbServiceUser.saveUser(new User(0, "username"));
-        Optional<User> mayBeCreatedUser = dbServiceUser.getUser(id);
-        System.out.println(mayBeCreatedUser.orElse(null));
+        dbServiceUser.getUser(id);
     }
 }
