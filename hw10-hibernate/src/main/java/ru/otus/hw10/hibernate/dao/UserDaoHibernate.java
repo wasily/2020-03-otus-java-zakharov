@@ -12,9 +12,13 @@ import ru.otus.hw10.core.sessionmanager.SessionManager;
 import ru.otus.hw10.hibernate.sessionmanager.DatabaseSessionHibernate;
 import ru.otus.hw10.hibernate.sessionmanager.SessionManagerHibernate;
 
+import javax.persistence.EntityGraph;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class UserDaoHibernate implements UserDao {
@@ -31,7 +35,10 @@ public class UserDaoHibernate implements UserDao {
     public Optional<User> findById(long id) {
         DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
         try {
-            return Optional.ofNullable(currentSession.getHibernateSession().find(User.class, id));
+            EntityGraph entityGraph = currentSession.getHibernateSession().getEntityGraph("userEntityGraph");
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("javax.persistence.fetchgraph", entityGraph);
+            return Optional.ofNullable(currentSession.getHibernateSession().find(User.class, id, properties));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -45,9 +52,9 @@ public class UserDaoHibernate implements UserDao {
             CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
             CriteriaQuery<User> cr = cb.createQuery(User.class);
             Root<User> root = cr.from(User.class);
-            root.join("phones");
-            root.join("address");
-
+            root.join("phones", JoinType.LEFT);
+            root.join("address", JoinType.LEFT);
+            cr.select(root).where(cb.equal(root.get("id"), id));
             Query<User> query = currentSession.getHibernateSession().createQuery(cr);
             User result = query.getSingleResult();
             return Optional.ofNullable(result);
