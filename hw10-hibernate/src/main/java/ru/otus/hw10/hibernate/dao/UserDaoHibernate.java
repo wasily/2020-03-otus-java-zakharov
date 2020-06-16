@@ -2,6 +2,7 @@ package ru.otus.hw10.hibernate.dao;
 
 
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.hw10.core.dao.UserDao;
@@ -11,6 +12,9 @@ import ru.otus.hw10.core.sessionmanager.SessionManager;
 import ru.otus.hw10.hibernate.sessionmanager.DatabaseSessionHibernate;
 import ru.otus.hw10.hibernate.sessionmanager.SessionManagerHibernate;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.Optional;
 
 public class UserDaoHibernate implements UserDao {
@@ -28,6 +32,25 @@ public class UserDaoHibernate implements UserDao {
         DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
         try {
             return Optional.ofNullable(currentSession.getHibernateSession().find(User.class, id));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByIdWithPhonesAndAddress(long id) {
+        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
+        try {
+            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
+            CriteriaQuery<User> cr = cb.createQuery(User.class);
+            Root<User> root = cr.from(User.class);
+            root.join("phones");
+            root.join("address");
+
+            Query<User> query = currentSession.getHibernateSession().createQuery(cr);
+            User result = query.getSingleResult();
+            return Optional.ofNullable(result);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

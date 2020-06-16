@@ -7,6 +7,7 @@ import ru.otus.hw10.core.model.User;
 import ru.otus.hw10.core.sessionmanager.SessionManager;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 public class DbServiceUserImpl implements DBServiceUser {
     private static Logger logger = LoggerFactory.getLogger(DbServiceUserImpl.class);
@@ -36,14 +37,23 @@ public class DbServiceUserImpl implements DBServiceUser {
         }
     }
 
+    @Override
+    public Optional<User> getUserWithPhonesAndAddress(long id) {
+        logger.info("Using findByIdWithPhonesAndAddress");
+        return findUser(id, userDao::findByIdWithPhonesAndAddress);
+    }
 
     @Override
     public Optional<User> getUser(long id) {
+        logger.info("Using findById");
+        return findUser(id, userDao::findById);
+    }
+
+    private Optional<User> findUser(long id, Function<Long, Optional<User>> function) {
         try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
-                Optional<User> userOptional = userDao.findById(id);
-
+                Optional<User> userOptional = function.apply(id);
                 logger.info("user: {}", userOptional.orElse(null));
                 return userOptional;
             } catch (Exception e) {

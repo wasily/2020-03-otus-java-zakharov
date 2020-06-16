@@ -29,5 +29,6 @@ public class Starter {
         User user = new User(0, "username", Set.of(phone,phone2),address);
         long id = dbServiceUser.saveUser(user);
         dbServiceUser.getUser(id);
+        dbServiceUser.getUserWithPhonesAndAddress(id);
     }
 }

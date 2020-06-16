@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface UserDao {
     Optional<User> findById(long id);
 
+    Optional<User> findByIdWithPhonesAndAddress(long id);
+
     long insertUser(User user);
 
     void updateUser(User user);
