@@ -52,8 +52,8 @@ public class UserDaoHibernate implements UserDao {
             CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
             CriteriaQuery<User> cr = cb.createQuery(User.class);
             Root<User> root = cr.from(User.class);
-            root.join("phones", JoinType.LEFT);
-            root.join("address", JoinType.LEFT);
+            root.fetch("phones", JoinType.LEFT);
+            root.fetch("address", JoinType.LEFT);
             cr.select(root).where(cb.equal(root.get("id"), id));
             Query<User> query = currentSession.getHibernateSession().createQuery(cr);
             User result = query.getSingleResult();
