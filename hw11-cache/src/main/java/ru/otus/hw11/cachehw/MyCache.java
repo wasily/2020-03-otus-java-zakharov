@@ -40,4 +40,9 @@ public class MyCache<K, V> implements HwCache<K, V> {
     public void removeListener(HwListener<K, V> listener) {
         listeners.remove(listener);
     }
+
+    @Override
+    public long getSize() {
+        return cache.size();
+    }
 }
