@@ -2,6 +2,7 @@ package ru.otus.hw11.core.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.hw11.cachehw.HwCache;
 import ru.otus.hw11.core.dao.UserDao;
 import ru.otus.hw11.core.model.User;
 import ru.otus.hw11.core.sessionmanager.SessionManager;
@@ -10,12 +11,18 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class DbServiceUserImpl implements DBServiceUser {
-    private static Logger logger = LoggerFactory.getLogger(DbServiceUserImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(DbServiceUserImpl.class);
 
     private final UserDao userDao;
+    private final HwCache<String, User> cache;
 
     public DbServiceUserImpl(UserDao userDao) {
+        this(userDao, null);
+    }
+
+    public DbServiceUserImpl(UserDao userDao, HwCache<String, User> cache) {
         this.userDao = userDao;
+        this.cache = cache;
     }
 
     @Override
@@ -26,7 +33,9 @@ public class DbServiceUserImpl implements DBServiceUser {
                 userDao.insertOrUpdate(user);
                 long userId = user.getId();
                 sessionManager.commitSession();
-
+                if (cache != null) {
+                    cache.put(String.valueOf(userId), user);
+                }
                 logger.info("created user: {}", userId);
                 return userId;
             } catch (Exception e) {
@@ -40,12 +49,36 @@ public class DbServiceUserImpl implements DBServiceUser {
     @Override
     public Optional<User> getUserWithPhonesAndAddress(long id) {
         logger.info("Using findByIdWithPhonesAndAddress");
+        if (cache != null) {
+            var cachedUser = cache.get(String.valueOf(id));
+            if (cachedUser != null) {
+                return Optional.of(cachedUser);
+            }
+            var optionalUserFromDB = findUser(id, userDao::findByIdWithPhonesAndAddress);
+            if (optionalUserFromDB.isPresent()) {
+                var user = optionalUserFromDB.get();
+                cache.put("withLinkedEntities" + user.getId(), user);
+            }
+            return optionalUserFromDB;
+        }
         return findUser(id, userDao::findByIdWithPhonesAndAddress);
     }
 
     @Override
     public Optional<User> getUser(long id) {
         logger.info("Using findById");
+        if (cache != null) {
+            var cachedUser = cache.get(String.valueOf(id));
+            if (cachedUser != null) {
+                return Optional.of(cachedUser);
+            }
+            var optionalUserFromDB = findUser(id, userDao::findByIdWithPhonesAndAddress);
+            if (optionalUserFromDB.isPresent()) {
+                var user = optionalUserFromDB.get();
+                cache.put(String.valueOf(user.getId()), user);
+            }
+            return optionalUserFromDB;
+        }
         return findUser(id, userDao::findById);
     }
 

@@ -5,7 +5,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import ru.otus.hw11.core.sessionmanager.SessionManager;
 import ru.otus.hw11.core.sessionmanager.SessionManagerException;
-import ru.otus.hw11.hibernate.sessionmanager.DatabaseSessionHibernate;
 
 public class SessionManagerHibernate implements SessionManager {
 
