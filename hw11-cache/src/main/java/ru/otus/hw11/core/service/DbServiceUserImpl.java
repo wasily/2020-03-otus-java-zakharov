@@ -48,52 +48,47 @@ public class DbServiceUserImpl implements DBServiceUser {
 
     @Override
     public Optional<User> getUserWithPhonesAndAddress(long id) {
+        String cacheKey = "withLinkedEntities" + id;
         logger.info("Using findByIdWithPhonesAndAddress");
-        if (cache != null) {
-            var cachedUser = cache.get(String.valueOf(id));
-            if (cachedUser != null) {
-                return Optional.of(cachedUser);
-            }
-            var optionalUserFromDB = findUser(id, userDao::findByIdWithPhonesAndAddress);
-            if (optionalUserFromDB.isPresent()) {
-                var user = optionalUserFromDB.get();
-                cache.put("withLinkedEntities" + user.getId(), user);
-            }
-            return optionalUserFromDB;
-        }
-        return findUser(id, userDao::findByIdWithPhonesAndAddress);
+        return findUser(id, cacheKey, userDao::findByIdWithPhonesAndAddress);
     }
 
     @Override
     public Optional<User> getUser(long id) {
         logger.info("Using findById");
-        if (cache != null) {
-            var cachedUser = cache.get(String.valueOf(id));
-            if (cachedUser != null) {
-                return Optional.of(cachedUser);
-            }
-            var optionalUserFromDB = findUser(id, userDao::findByIdWithPhonesAndAddress);
-            if (optionalUserFromDB.isPresent()) {
-                var user = optionalUserFromDB.get();
-                cache.put(String.valueOf(user.getId()), user);
-            }
-            return optionalUserFromDB;
-        }
-        return findUser(id, userDao::findById);
+        return findUser(id, String.valueOf(id), userDao::findById);
     }
 
-    private Optional<User> findUser(long id, Function<Long, Optional<User>> function) {
+    private Optional<User> findUser(long id, String cacheKey, Function<Long, Optional<User>> function) {
+        var cachedUser = queryCache(cacheKey);
+        if (cachedUser != null) {
+            return Optional.of(cachedUser);
+        }
         try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
                 Optional<User> userOptional = function.apply(id);
                 logger.info("user: {}", userOptional.orElse(null));
+                putInCache(cacheKey, userOptional.orElse(null));
                 return userOptional;
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
                 sessionManager.rollbackSession();
             }
             return Optional.empty();
+        }
+    }
+
+    private User queryCache(String key) {
+        if (cache == null) {
+            return null;
+        }
+        return cache.get(key);
+    }
+
+    private void putInCache(String key, User user) {
+        if (cache != null && user != null) {
+            cache.put(key, user);
         }
     }
 }
