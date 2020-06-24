@@ -56,6 +56,7 @@ public class Starter {
         var user2 = new User(0, "username2", Set.of(newPhone, newPhone2), newAddress);
         cachedDbServiceUser.saveUser(user2);
         cachedDbServiceUser.getUserWithPhonesAndAddress(user2.getId());
+        cachedDbServiceUser.getUserWithPhonesAndAddress(user2.getId());
 
          cachedDbServiceUser.getUserWithPhonesAndAddress(user.getId());
          cachedDbServiceUser.getUserWithPhonesAndAddress(user.getId());
