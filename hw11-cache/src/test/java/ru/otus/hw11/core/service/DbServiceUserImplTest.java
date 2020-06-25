@@ -53,23 +53,26 @@ class DbServiceUserImplTest {
     }
 
     @Test
-    void shouldSuppressOneOfTheListenerException() {
+    void shouldSuppressListenerException() {
         HwListener<String, User> listenerThatThrows = new HwListener<>() {
             @Override
             public void notify(String key, User value, String action) {
                 throw new RuntimeException("test that listener fails with runtimeException");
             }
         };
+        boolean[] status = new boolean[]{false};
         HwListener<String, User> listener = new HwListener<>() {
             @Override
             public void notify(String key, User value, String action) {
+                status[0] = true;
                 logger.warn("test that listener works among failed");
             }
         };
         myCache.addListener(listenerThatThrows);
-        myCache.addListener(listener);
         assertDoesNotThrow(() -> cachedDbServiceUser.getUser(1));
+        myCache.addListener(listener);
         assertDoesNotThrow(() -> cachedDbServiceUser.getUser(2));
+        assertTrue(status[0]);
         myCache.removeListener(listenerThatThrows);
         myCache.removeListener(listener);
     }
