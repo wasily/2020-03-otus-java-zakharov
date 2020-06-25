@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.hw11.cachehw.HwCache;
+import ru.otus.hw11.cachehw.HwListener;
 import ru.otus.hw11.cachehw.MyCache;
 import ru.otus.hw11.core.dao.UserDao;
 import ru.otus.hw11.core.model.AddressDataSet;
@@ -24,8 +25,7 @@ import java.util.UUID;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DbServiceUserImplTest {
     private static final Logger logger = LoggerFactory.getLogger(DbServiceUserImplTest.class);
@@ -50,6 +50,28 @@ class DbServiceUserImplTest {
     @AfterEach
     void clearUsersTable() {
         sessionFactory.close();
+    }
+
+    @Test
+    void shouldSuppressOneOfTheListenerException() {
+        HwListener<String, User> listenerThatThrows = new HwListener<>() {
+            @Override
+            public void notify(String key, User value, String action) {
+                throw new RuntimeException("test that listener fails with runtimeException");
+            }
+        };
+        HwListener<String, User> listener = new HwListener<>() {
+            @Override
+            public void notify(String key, User value, String action) {
+                logger.warn("test that listener works among failed");
+            }
+        };
+        myCache.addListener(listenerThatThrows);
+        myCache.addListener(listener);
+        assertDoesNotThrow(() -> cachedDbServiceUser.getUser(1));
+        assertDoesNotThrow(() -> cachedDbServiceUser.getUser(2));
+        myCache.removeListener(listenerThatThrows);
+        myCache.removeListener(listener);
     }
 
     @Test
