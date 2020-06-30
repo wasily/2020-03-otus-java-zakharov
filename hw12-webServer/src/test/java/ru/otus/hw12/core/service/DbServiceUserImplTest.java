@@ -50,6 +50,7 @@ class DbServiceUserImplTest {
 
     @AfterEach
     void clearUsersTable() {
+        flywayClean();
         sessionFactory.close();
     }
 
@@ -150,10 +151,7 @@ class DbServiceUserImplTest {
     @Test
     void shouldGetAllUsers() {
         int initialUsersCount = 8;
-        var flyway = Flyway.configure().dataSource("jdbc:h2:mem:DB", "sa", "sa")
-                .locations("classpath:db/migration ").load();
-        flyway.baseline();
-        flyway.migrate();
+        flywayMigrate();
         assertEquals(initialUsersCount, dbServiceUser.getAllUsers().size());
 
         dbServiceUser.saveUser(new User(0, "null", "null", "null", null, null));
@@ -161,10 +159,24 @@ class DbServiceUserImplTest {
     }
 
     @Test
-    void shouldFindUserById() {
+    void shouldFindUserByLogin() {
         String login = "user2";
+        flywayMigrate();
         var user = dbServiceUser.findByLogin(login).orElse(null);
         assertNotNull(user);
         assertEquals(login, user.getLogin());
+    }
+
+    private void flywayMigrate() {
+        var flyway = Flyway.configure().dataSource("jdbc:h2:mem:DB", "sa", "sa")
+                .locations("classpath:db/migration ").load();
+        flyway.baseline();
+        flyway.migrate();
+    }
+
+    private void flywayClean() {
+        var flyway = Flyway.configure().dataSource("jdbc:h2:mem:DB", "sa", "sa")
+                .locations("classpath:db/migration ").load();
+        flyway.clean();
     }
 }
