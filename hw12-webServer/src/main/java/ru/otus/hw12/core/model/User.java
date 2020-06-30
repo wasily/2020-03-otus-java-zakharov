@@ -31,6 +31,12 @@ public class User {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "login", unique = true)
+    private String login;
+
+    @Column(name = "password")
+    private String password;
+
     @OneToMany(targetEntity = PhoneDataSet.class, cascade = {MERGE, PERSIST, DETACH, REFRESH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private Set<PhoneDataSet> phones = new HashSet<>();

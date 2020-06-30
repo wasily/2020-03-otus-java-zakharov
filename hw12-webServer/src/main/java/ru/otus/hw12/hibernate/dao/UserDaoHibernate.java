@@ -20,9 +20,14 @@ import javax.persistence.criteria.Root;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 public class UserDaoHibernate implements UserDao {
     private static Logger logger = LoggerFactory.getLogger(UserDaoHibernate.class);
+    private static final String ID_COLUMN_NAME = "phones";
+    private static final String PHONES_COLUMN_NAME = "phones";
+    private static final String ADDRESS_COLUMN_NAME = "address";
+    private static final String LOGIN_COLUMN_NAME = "login";
 
     private final SessionManagerHibernate sessionManager;
 
@@ -52,9 +57,9 @@ public class UserDaoHibernate implements UserDao {
             CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
             CriteriaQuery<User> cr = cb.createQuery(User.class);
             Root<User> root = cr.from(User.class);
-            root.fetch("phones", JoinType.LEFT);
-            root.fetch("address", JoinType.LEFT);
-            cr.select(root).where(cb.equal(root.get("id"), id));
+            root.fetch(PHONES_COLUMN_NAME, JoinType.LEFT);
+            root.fetch(ADDRESS_COLUMN_NAME, JoinType.LEFT);
+            cr.select(root).where(cb.equal(root.get(ID_COLUMN_NAME), id));
             Query<User> query = currentSession.getHibernateSession().createQuery(cr);
             User result = query.getSingleResult();
             return Optional.ofNullable(result);
@@ -107,6 +112,60 @@ public class UserDaoHibernate implements UserDao {
         }
     }
 
+    @Override
+    public Optional<User> findRandomUser() {
+        int userCount = getUserCount();
+        if (userCount == 0) {
+            return Optional.of(new User(-1, "NO_USER", "null", "null", null, null));
+        }
+
+        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
+        try {
+            int randomNumber = new Random().nextInt(userCount);
+            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
+            CriteriaQuery<User> cr = cb.createQuery(User.class);
+            Root<User> root = cr.from(User.class);
+            cr.select(root);
+            Query<User> query = currentSession.getHibernateSession().createQuery(cr).setFirstResult(randomNumber).setMaxResults(1);
+            User result = query.getResultList().get(0);
+            return Optional.ofNullable(result);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByLogin(String login) {
+        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
+        try {
+            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
+            CriteriaQuery<User> cr = cb.createQuery(User.class);
+            Root<User> root = cr.from(User.class);
+            cr.select(root).where(cb.equal(root.get(LOGIN_COLUMN_NAME), login));
+            Query<User> query = currentSession.getHibernateSession().createQuery(cr);
+            User result = query.getSingleResult();
+            return Optional.ofNullable(result);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+
+    private int getUserCount() {
+        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
+        try {
+            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
+            CriteriaQuery<Long> cr = cb.createQuery(Long.class);
+            Root<User> root = cr.from(User.class);
+            cr.select(cb.count(root));
+            Query<Long> query = currentSession.getHibernateSession().createQuery(cr);
+            return query.getSingleResult().intValue();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return 0;
+    }
 
     @Override
     public SessionManager getSessionManager() {

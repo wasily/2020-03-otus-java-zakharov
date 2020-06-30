@@ -11,4 +11,8 @@ public interface DBServiceUser {
     Optional<User> getUser(long id);
 
     Optional<User> getUserWithPhonesAndAddress(long id);
+
+    Optional<User> findRandomUser();
+
+    Optional<User> findByLogin(String login);
 }

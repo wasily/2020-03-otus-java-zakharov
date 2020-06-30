@@ -1,5 +1,9 @@
 package ru.otus.hw12;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.LoginService;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,32 +16,27 @@ import ru.otus.hw12.core.model.PhoneDataSet;
 import ru.otus.hw12.core.model.User;
 import ru.otus.hw12.core.service.DBServiceUser;
 import ru.otus.hw12.core.service.DbServiceUserImpl;
+import ru.otus.hw12.helpers.FileSystemHelper;
 import ru.otus.hw12.hibernate.HibernateUtils;
 import ru.otus.hw12.hibernate.dao.UserDaoHibernate;
 import ru.otus.hw12.hibernate.sessionmanager.SessionManagerHibernate;
-
-import java.util.Set;
-import java.util.UUID;
+import ru.otus.hw12.server.UsersWebServer;
+import ru.otus.hw12.server.UsersWebServerWithBasicSecurity;
+import ru.otus.hw12.services.TemplateProcessor;
+import ru.otus.hw12.services.TemplateProcessorImpl;
 
 public class Starter {
     private static final Logger logger = LoggerFactory.getLogger(Starter.class);
+    private static final int WEB_SERVER_PORT = 8080;
+    private static final String TEMPLATES_DIR = "/templates/";
+    private static final String HASH_LOGIN_SERVICE_CONFIG_NAME = "realm.properties";
+    private static final String REALM_NAME = "AnyRealm";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         SessionFactory sessionFactory = HibernateUtils.buildSessionFactory("hibernate.cfg.xml",
                 User.class, AddressDataSet.class, PhoneDataSet.class);
 
         SessionManagerHibernate sessionManager = new SessionManagerHibernate(sessionFactory);
-        UserDao userDao = new UserDaoHibernate(sessionManager);
-        DBServiceUser dbServiceUser = new DbServiceUserImpl(userDao);
-
-
-        var address = new AddressDataSet(UUID.randomUUID().toString(), "some address");
-        var phone = new PhoneDataSet(UUID.randomUUID().toString(), "1234567890");
-        var phone2 = new PhoneDataSet(UUID.randomUUID().toString(), "123-1234-34");
-        User user = new User(0, "username", Set.of(phone, phone2), address);
-        dbServiceUser.saveUser(user);
-        dbServiceUser.getUser(user.getId());
-        dbServiceUser.getUserWithPhonesAndAddress(user.getId());
 
         logger.info("Started using MyCache");
         HwCache<String, User> myCache = new MyCache<>();
@@ -48,20 +47,27 @@ public class Starter {
             }
         };
         myCache.addListener(listener);
-        DBServiceUser cachedDbServiceUser = new DbServiceUserImpl(userDao, myCache);
+        DBServiceUser cachedDbServiceUser = new DbServiceUserImpl(new UserDaoHibernate(sessionManager), myCache);
 
-        var newAddress = new AddressDataSet(UUID.randomUUID().toString(), "some address 2");
-        var newPhone = new PhoneDataSet(UUID.randomUUID().toString(), "999999999");
-        var newPhone2 = new PhoneDataSet(UUID.randomUUID().toString(), "4556-5667-5674");
-        var user2 = new User(0, "username2", Set.of(newPhone, newPhone2), newAddress);
-        cachedDbServiceUser.saveUser(user2);
-        cachedDbServiceUser.getUserWithPhonesAndAddress(user2.getId());
-        cachedDbServiceUser.getUserWithPhonesAndAddress(user2.getId());
+        cachedDbServiceUser.saveUser(new User(1L, "Крис Гир", "user1", "11111", null, null));
+        cachedDbServiceUser.saveUser(new User(2L, "Ая Кэш", "user2", "11111", null, null));
+        cachedDbServiceUser.saveUser(new User(3L, "Десмин Боргес", "user3", "11111", null, null));
+        cachedDbServiceUser.saveUser(new User(4L, "Кетер Донохью", "user4", "11111", null, null));
+        cachedDbServiceUser.saveUser(new User(5L, "Стивен Шнайдер", "user5", "11111", null, null));
+        cachedDbServiceUser.saveUser(new User(6L, "Джанет Вэрни", "user6", "11111", null, null));
+        cachedDbServiceUser.saveUser(new User(7L, "Брэндон Смит", "user7", "11111", null, null));
 
-         cachedDbServiceUser.getUserWithPhonesAndAddress(user.getId());
-         cachedDbServiceUser.getUserWithPhonesAndAddress(user.getId());
+        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+        TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
 
-         cachedDbServiceUser.getUser(user.getId());
-         cachedDbServiceUser.getUser(user.getId());
+        String hashLoginServiceConfigPath = FileSystemHelper.localFileNameOrResourceNameToFullPath(HASH_LOGIN_SERVICE_CONFIG_NAME);
+        LoginService loginService = new HashLoginService(REALM_NAME, hashLoginServiceConfigPath);
+        //LoginService loginService = new InMemoryLoginServiceImpl(userDao);
+
+        UsersWebServer usersWebServer = new UsersWebServerWithBasicSecurity(WEB_SERVER_PORT,
+                loginService, cachedDbServiceUser, gson, templateProcessor);
+
+        usersWebServer.start();
+        usersWebServer.join();
     }
 }

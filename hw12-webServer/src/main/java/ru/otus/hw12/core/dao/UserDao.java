@@ -17,5 +17,9 @@ public interface UserDao {
 
     void insertOrUpdate(User user);
 
+    Optional<User> findRandomUser();
+
+    Optional<User> findByLogin(String login);
+
     SessionManager getSessionManager();
 }
