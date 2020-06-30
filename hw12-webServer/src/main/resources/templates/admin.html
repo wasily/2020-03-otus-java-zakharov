@@ -1,0 +1,22 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Управление пользователями</title>
+</head>
+
+<body>
+<h4>Создать пользователя</h4>
+<form action="/api/user/" method="post">
+    <input type="text" name="userName" placeholder="Введите имя пользователя">
+    <input type="text" name="userLogin" placeholder="Введите логин пользователя">
+    <input type="text" name="userPassword" placeholder="Введите пароль пользователя">
+    <button type="submit">Сохранить</button>
+</form>
+
+<h4>Список пользователей</h4>
+<ul>
+    <#list userList as item>
+    <li>${item}</li>
+    </#list>
+</ul>
+</body>
+</html>

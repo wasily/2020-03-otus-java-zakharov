@@ -17,10 +17,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class UserDaoHibernate implements UserDao {
     private static Logger logger = LoggerFactory.getLogger(UserDaoHibernate.class);
@@ -48,6 +45,24 @@ public class UserDaoHibernate implements UserDao {
             logger.error(e.getMessage(), e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public List<User> findAll() {
+        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
+        try {
+            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
+            CriteriaQuery<User> cr = cb.createQuery(User.class);
+            Root<User> root = cr.from(User.class);
+            root.fetch(PHONES_COLUMN_NAME, JoinType.LEFT);
+            root.fetch(ADDRESS_COLUMN_NAME, JoinType.LEFT);
+            cr.select(root);
+            Query<User> query = currentSession.getHibernateSession().createQuery(cr);
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return Collections.emptyList();
     }
 
     @Override

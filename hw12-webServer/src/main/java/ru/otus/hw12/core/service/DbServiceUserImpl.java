@@ -7,6 +7,8 @@ import ru.otus.hw12.core.dao.UserDao;
 import ru.otus.hw12.core.model.User;
 import ru.otus.hw12.core.sessionmanager.SessionManager;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -57,6 +59,21 @@ public class DbServiceUserImpl implements DBServiceUser {
     public Optional<User> getUser(long id) {
         logger.info("Using findById");
         return findUser(id, String.valueOf(id), userDao::findById);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        logger.info("Using getAllUsers");
+        try (SessionManager sessionManager = userDao.getSessionManager()) {
+            sessionManager.beginSession();
+            try {
+                return userDao.findAll();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                sessionManager.rollbackSession();
+            }
+            return Collections.emptyList();
+        }
     }
 
     @Override
