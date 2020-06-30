@@ -1,5 +1,6 @@
 package ru.otus.hw12.core.service;
 
+import org.flywaydb.core.Flyway;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -144,5 +145,26 @@ class DbServiceUserImplTest {
         }
         LocalTime after = LocalTime.now();
         return MILLIS.between(before, after);
+    }
+
+    @Test
+    void shouldGetAllUsers() {
+        int initialUsersCount = 8;
+        var flyway = Flyway.configure().dataSource("jdbc:h2:mem:DB", "sa", "sa")
+                .locations("classpath:db/migration ").load();
+        flyway.baseline();
+        flyway.migrate();
+        assertEquals(initialUsersCount, dbServiceUser.getAllUsers().size());
+
+        dbServiceUser.saveUser(new User(0, "null", "null", "null", null, null));
+        assertEquals(initialUsersCount + 1, dbServiceUser.getAllUsers().size());
+    }
+
+    @Test
+    void shouldFindUserById() {
+        String login = "user2";
+        var user = dbServiceUser.findByLogin(login).orElse(null);
+        assertNotNull(user);
+        assertEquals(login, user.getLogin());
     }
 }
