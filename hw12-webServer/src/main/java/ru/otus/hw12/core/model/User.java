@@ -24,7 +24,8 @@ import static javax.persistence.CascadeType.*;
 )
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_seq_generator")
+    @SequenceGenerator(name = "users_seq_generator", sequenceName = "users_seq", allocationSize = 1)
     @Column(name = "id")
     private long id;
 
