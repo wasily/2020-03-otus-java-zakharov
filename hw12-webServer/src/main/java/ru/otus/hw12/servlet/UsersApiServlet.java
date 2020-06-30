@@ -33,9 +33,6 @@ public class UsersApiServlet extends HttpServlet {
         newUser.setLogin(req.getParameter(LOGIN));
         newUser.setPassword(req.getParameter(PASSWORD));
         dbServiceUser.saveUser(newUser);
-//        resp.setContentType("application/json;charset=UTF-8");
-//        ServletOutputStream out = resp.getOutputStream();
-//        out.print(req.getParameterMap().toString());
         resp.sendRedirect(ADMIN_PAGE);
     }
 

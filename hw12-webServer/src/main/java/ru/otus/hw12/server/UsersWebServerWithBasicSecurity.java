@@ -9,7 +9,6 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.security.Constraint;
-import ru.otus.hw12.core.dao.UserDao;
 import ru.otus.hw12.core.service.DBServiceUser;
 import ru.otus.hw12.services.TemplateProcessor;
 
@@ -21,6 +20,8 @@ public class UsersWebServerWithBasicSecurity extends UsersWebServerSimple {
     private static final String ROLE_NAME_USER = "user";
     private static final String ROLE_NAME_ADMIN = "admin";
     private static final String CONSTRAINT_NAME = "auth";
+    private static final String ADMIN_CONSTRAINT_NAME = "admin_auth";
+    private static final String ADMIN_PATH = "/admin";
 
     private final LoginService loginService;
 
@@ -46,6 +47,16 @@ public class UsersWebServerWithBasicSecurity extends UsersWebServerSimple {
             mapping.setConstraint(constraint);
             constraintMappings.add(mapping);
         });
+
+        Constraint adminConstraint = new Constraint();
+        adminConstraint.setName(ADMIN_CONSTRAINT_NAME);
+        adminConstraint.setAuthenticate(true);
+        adminConstraint.setRoles(new String[]{ROLE_NAME_ADMIN});
+
+        ConstraintMapping adminMapping = new ConstraintMapping();
+        adminMapping.setPathSpec(ADMIN_PATH);
+        adminMapping.setConstraint(adminConstraint);
+        constraintMappings.add(adminMapping);
 
         ConstraintSecurityHandler security = new ConstraintSecurityHandler();
         //как декодировать стороку с юзером:паролем https://www.base64decode.org/
