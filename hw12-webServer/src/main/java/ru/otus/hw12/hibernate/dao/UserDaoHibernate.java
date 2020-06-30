@@ -56,7 +56,7 @@ public class UserDaoHibernate implements UserDao {
             Root<User> root = cr.from(User.class);
             root.fetch(PHONES_COLUMN_NAME, JoinType.LEFT);
             root.fetch(ADDRESS_COLUMN_NAME, JoinType.LEFT);
-            cr.select(root);
+            cr.select(root).distinct(true);
             Query<User> query = currentSession.getHibernateSession().createQuery(cr);
             return query.getResultList();
         } catch (Exception e) {

@@ -32,7 +32,7 @@ public class User {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "login", unique = true)
+    @Column(name = "login", unique = true, nullable = false)
     private String login;
 
     @Column(name = "password")

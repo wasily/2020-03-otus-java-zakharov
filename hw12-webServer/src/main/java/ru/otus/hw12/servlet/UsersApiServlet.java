@@ -1,6 +1,8 @@
 package ru.otus.hw12.servlet;
 
 import com.google.gson.Gson;
+import ru.otus.hw12.core.model.AddressDataSet;
+import ru.otus.hw12.core.model.PhoneDataSet;
 import ru.otus.hw12.core.model.User;
 import ru.otus.hw12.core.service.DBServiceUser;
 
@@ -10,6 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 public class UsersApiServlet extends HttpServlet {
@@ -18,6 +23,9 @@ public class UsersApiServlet extends HttpServlet {
     private static final String NAME = "userName";
     private static final String LOGIN = "userLogin";
     private static final String PASSWORD = "userPassword";
+    private static final String ADDRESS = "userAddress";
+    private static final String PHONES = "userPhones";
+    private static final String PHONES_SEPARATOR = ",";
     private final DBServiceUser dbServiceUser;
     private final Gson gson;
 
@@ -32,6 +40,15 @@ public class UsersApiServlet extends HttpServlet {
         newUser.setName(req.getParameter(NAME));
         newUser.setLogin(req.getParameter(LOGIN));
         newUser.setPassword(req.getParameter(PASSWORD));
+        var addressString = req.getParameter(ADDRESS);
+        if (addressString != null && !addressString.isEmpty()) {
+            newUser.setAddress(new AddressDataSet(UUID.randomUUID().toString(), addressString));
+        }
+        var phonesString = req.getParameter(PHONES);
+        if (addressString != null && !addressString.isEmpty()) {
+            newUser.setPhones(Arrays.stream(phonesString.split(PHONES_SEPARATOR))
+                    .map(x -> new PhoneDataSet(UUID.randomUUID().toString(), x)).collect(Collectors.toSet()));
+        }
         dbServiceUser.saveUser(newUser);
         resp.sendRedirect(ADMIN_PAGE);
     }

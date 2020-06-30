@@ -8,9 +8,27 @@
 <br/>
 <h4>Создать пользователя</h4>
 <form action="/api/user/" method="post">
-    <input type="text" name="userName" placeholder="Введите имя пользователя">
-    <input type="text" name="userLogin" placeholder="Введите логин пользователя">
-    <input type="text" name="userPassword" placeholder="Введите пароль пользователя">
+    <p> Введите имя пользователя
+        <br>
+        <input type="text" name="userName">
+    </p>
+    <p> Введите логин пользователя
+        <br>
+        <input type="text" name="userLogin">
+    </p>
+    <p> Введите пароль пользователя
+        <br>
+        <input type="password" name="userPassword">
+    </p>
+    <p> Введите адрес пользователя
+        <br>
+        <input type="text" name="userAddress">
+    </p>
+    <p> Введите телефоны пользователя (через запятую)
+        <br>
+        <input type="text" name="userPhones">
+    </p>
+    <br>
     <button type="submit">Сохранить</button>
 </form>
 
@@ -18,7 +36,7 @@
 <ul>
     <#list userList as item>
     <li>${item}</li>
-    </#list>
+</#list>
 </ul>
 </body>
 </html>
