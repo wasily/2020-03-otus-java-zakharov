@@ -82,7 +82,7 @@ class DbServiceUserImplTest {
         var address = new AddressDataSet(UUID.randomUUID().toString(), "street name");
         var phonesSet = Set.of(new PhoneDataSet(UUID.randomUUID().toString(), "222-22-22"),
                 new PhoneDataSet(UUID.randomUUID().toString(), "333-33-33"));
-        var user = new User(0, "username", phonesSet, address);
+        var user = new User(0, "username", "login", "password", phonesSet, address);
 
         assertEquals(0, myCache.getSize());
         cachedDbServiceUser.saveUser(user);
@@ -97,7 +97,7 @@ class DbServiceUserImplTest {
         var address = new AddressDataSet(UUID.randomUUID().toString(), "street name");
         var phonesSet = Set.of(new PhoneDataSet(UUID.randomUUID().toString(), "222-22-22"),
                 new PhoneDataSet(UUID.randomUUID().toString(), "333-33-33"));
-        var user = new User(0, "username", phonesSet, address);
+        var user = new User(0, "username", "login", "password", phonesSet, address);
 
         dbServiceUser.saveUser(user);
         assertEquals(0, myCache.getSize());
@@ -133,7 +133,7 @@ class DbServiceUserImplTest {
 
     private static void fillUsersTableWithSampleData(DBServiceUser dbServiceUser, int rowsNumber) {
         for (int i = 0; i < rowsNumber; i++) {
-            dbServiceUser.saveUser(new User(0, "username#" + i, null, null));
+            dbServiceUser.saveUser(new User(0, "username#" + i, "login" + i, "password", null, null));
         }
     }
 

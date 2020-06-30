@@ -10,7 +10,7 @@
     <logger name="org.hibernate" level="WARN"/>
     <logger name="ch.qos.logback" level="ERROR"/>
     <logger name="p6spy" level="WARN"/>
-    <logger name="ru.otus.hw11" level="WARN"/>
+    <logger name="ru.otus.hw12" level="WARN"/>
 
 
     <root level="info">

@@ -21,7 +21,7 @@ import java.util.*;
 
 public class UserDaoHibernate implements UserDao {
     private static Logger logger = LoggerFactory.getLogger(UserDaoHibernate.class);
-    private static final String ID_COLUMN_NAME = "phones";
+    private static final String ID_COLUMN_NAME = "id";
     private static final String PHONES_COLUMN_NAME = "phones";
     private static final String ADDRESS_COLUMN_NAME = "address";
     private static final String LOGIN_COLUMN_NAME = "login";
@@ -74,7 +74,7 @@ public class UserDaoHibernate implements UserDao {
             Root<User> root = cr.from(User.class);
             root.fetch(PHONES_COLUMN_NAME, JoinType.LEFT);
             root.fetch(ADDRESS_COLUMN_NAME, JoinType.LEFT);
-            cr.select(root).where(cb.equal(root.get(ID_COLUMN_NAME), id));
+            cr.select(root).distinct(true).where(cb.equal(root.get(ID_COLUMN_NAME), id));
             Query<User> query = currentSession.getHibernateSession().createQuery(cr);
             User result = query.getSingleResult();
             return Optional.ofNullable(result);
