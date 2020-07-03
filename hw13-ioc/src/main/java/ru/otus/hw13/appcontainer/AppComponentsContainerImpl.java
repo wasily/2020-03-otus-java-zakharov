@@ -1,5 +1,7 @@
 package ru.otus.hw13.appcontainer;
 
+import org.reflections.Reflections;
+import org.reflections.scanners.TypeAnnotationsScanner;
 import ru.otus.hw13.appcontainer.api.AppComponent;
 import ru.otus.hw13.appcontainer.api.AppComponentsContainer;
 import ru.otus.hw13.appcontainer.api.AppComponentsContainerConfig;
@@ -32,6 +34,19 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
                 .forEach(this::processConfig);
     }
 
+    public AppComponentsContainerImpl(String packageName) {
+        Reflections reflections = new Reflections(packageName, new TypeAnnotationsScanner());
+        var configClassesMap = reflections.getTypesAnnotatedWith(AppComponentsContainerConfig.class, true).stream()
+                .collect(Collectors.groupingBy(aClass -> aClass.getAnnotation(AppComponentsContainerConfig.class).order(),
+                        Collectors.toList()));
+
+        configClassesMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .flatMap(entry -> entry.getValue().stream())
+                .forEach(this::processConfig);
+    }
+
+
     private void processConfig(Class<?> configClass) {
         checkConfigClass(configClass);
         try {
@@ -44,33 +59,36 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
                     .sorted(Map.Entry.comparingByKey())
                     .flatMap(entry -> entry.getValue().stream())
                     .forEach(method -> {
-                        try {
-                            if (method.getParameterCount() == 0) {
-                                registerBean(method.invoke(appConfigClassInstance),
-                                        method.getAnnotation(AppComponent.class).name());
-                            } else {
-                                Class<?>[] methodParameters = method.getParameterTypes();
-                                List<Object> args = new ArrayList<>(methodParameters.length);
-                                for (Class<?> methodParameter : methodParameters) {
-                                    for (Object appComponent : appComponents) {
-                                        if (methodParameter.isAssignableFrom(appComponent.getClass())) {
-                                            args.add(appComponent);
-                                            break;
+                        String beanName = method.getAnnotation(AppComponent.class).name();
+                        if (!isBeanExists(beanName)) {
+                            try {
+                                if (method.getParameterCount() == 0) {
+                                    registerBean(method.invoke(appConfigClassInstance), beanName);
+                                } else {
+                                    Class<?>[] methodParameters = method.getParameterTypes();
+                                    List<Object> args = new ArrayList<>(methodParameters.length);
+                                    for (Class<?> methodParameter : methodParameters) {
+                                        for (Object appComponent : appComponents) {
+                                            if (methodParameter.isAssignableFrom(appComponent.getClass())) {
+                                                args.add(appComponent);
+                                                break;
+                                            }
                                         }
                                     }
+                                    registerBean(method.invoke(appConfigClassInstance, args.toArray()), beanName);
                                 }
-                                registerBean(method.invoke(appConfigClassInstance, args.toArray()),
-                                        method.getAnnotation(AppComponent.class).name());
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                e.printStackTrace();
                             }
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
                         }
                     });
-
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
+    }
 
+    private boolean isBeanExists(String beanName) {
+        return appComponentsByName.containsKey(beanName);
     }
 
     private void registerBean(Object bean, String name) {

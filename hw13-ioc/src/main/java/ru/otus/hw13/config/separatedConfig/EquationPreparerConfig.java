@@ -1,4 +1,4 @@
-package ru.otus.hw13.config;
+package ru.otus.hw13.config.separatedConfig;
 
 import ru.otus.hw13.appcontainer.api.AppComponent;
 import ru.otus.hw13.appcontainer.api.AppComponentsContainerConfig;

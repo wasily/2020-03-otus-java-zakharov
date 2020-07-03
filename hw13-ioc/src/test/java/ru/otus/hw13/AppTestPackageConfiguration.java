@@ -4,30 +4,22 @@ package ru.otus.hw13;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.reflections.ReflectionsException;
 import ru.otus.hw13.appcontainer.AppComponentsContainerImpl;
 import ru.otus.hw13.appcontainer.api.AppComponentsContainer;
-import ru.otus.hw13.config.AppConfig;
-import ru.otus.hw13.config.separatedConfig.EquationPreparerConfig;
-import ru.otus.hw13.config.separatedConfig.GameProcessorConfig;
-import ru.otus.hw13.config.separatedConfig.IOServiceConfig;
-import ru.otus.hw13.config.separatedConfig.PlayerServiceConfig;
 import ru.otus.hw13.services.*;
 
-import java.util.ArrayList;
-
-class AppTestSeparatedConfiguration {
+class AppTestPackageConfiguration {
     private AppComponentsContainer container;
 
     @BeforeEach
     void setUp() {
-        container = new AppComponentsContainerImpl(EquationPreparerConfig.class,
-                GameProcessorConfig.class, IOServiceConfig.class, PlayerServiceConfig.class);
+        container = new AppComponentsContainerImpl("ru.otus.hw13.config.separatedConfig");
     }
 
     @Test
     void shouldFailConfiguration() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new AppComponentsContainerImpl(ArrayList.class));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new AppComponentsContainerImpl(AppConfig.class, ArrayList.class));
+        Assertions.assertThrows(ReflectionsException.class, () -> new AppComponentsContainerImpl("invalid_path"));
     }
 
     @Test
