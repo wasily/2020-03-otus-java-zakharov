@@ -17,6 +17,21 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
         processConfig(initialConfigClass);
     }
 
+    public AppComponentsContainerImpl(Class<?>... initialConfigClasses) {
+        for (Class<?> initialConfigClass : initialConfigClasses) {
+            checkConfigClass(initialConfigClass);
+        }
+
+        var configClassesMap = Arrays.stream(initialConfigClasses)
+                .collect(Collectors.groupingBy(aClass -> aClass.getAnnotation(AppComponentsContainerConfig.class).order(),
+                        Collectors.toList()));
+
+        configClassesMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .flatMap(entry -> entry.getValue().stream())
+                .forEach(this::processConfig);
+    }
+
     private void processConfig(Class<?> configClass) {
         checkConfigClass(configClass);
         try {
