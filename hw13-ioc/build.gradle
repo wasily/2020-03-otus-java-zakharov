@@ -11,4 +11,13 @@ repositories {
 
 dependencies {
     implementation 'org.reflections:reflections:0.9.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
