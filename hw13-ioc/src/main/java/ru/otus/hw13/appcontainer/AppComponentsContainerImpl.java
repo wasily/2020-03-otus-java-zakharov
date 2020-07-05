@@ -7,6 +7,7 @@ import ru.otus.hw13.appcontainer.api.AppComponentsContainer;
 import ru.otus.hw13.appcontainer.api.AppComponentsContainerConfig;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,30 +61,11 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
                     .flatMap(entry -> entry.getValue().stream())
                     .forEach(method -> {
                         String beanName = method.getAnnotation(AppComponent.class).name();
-                        if (!isBeanExists(beanName)) {
-                            try {
-                                if (method.getParameterCount() == 0) {
-                                    registerBean(method.invoke(appConfigClassInstance), beanName);
-                                } else {
-                                    Class<?>[] methodParameters = method.getParameterTypes();
-                                    List<Object> args = new ArrayList<>(methodParameters.length);
-                                    for (Class<?> methodParameter : methodParameters) {
-                                        for (Object appComponent : appComponents) {
-                                            if (methodParameter.isAssignableFrom(appComponent.getClass())) {
-                                                args.add(appComponent);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    registerBean(method.invoke(appConfigClassInstance, args.toArray()), beanName);
-                                }
-                            } catch (IllegalAccessException | InvocationTargetException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                        Object bean = createBean(method, appConfigClassInstance, beanName);
+                        registerBean(bean, beanName);
                     });
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
+            throw new ContextCreationException(e);
         }
     }
 
@@ -94,6 +76,27 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
     private void registerBean(Object bean, String name) {
         appComponents.add(bean);
         appComponentsByName.put(name, bean);
+    }
+
+    private Object createBean(Method method, Object targetObject, String beanName) {
+        if (!isBeanExists(beanName)) {
+            try {
+                Class<?>[] methodParameters = method.getParameterTypes();
+                List<Object> args = new ArrayList<>(methodParameters.length);
+                for (Class<?> methodParameter : methodParameters) {
+                    for (Object appComponent : appComponents) {
+                        if (methodParameter.isAssignableFrom(appComponent.getClass())) {
+                            args.add(appComponent);
+                            break;
+                        }
+                    }
+                }
+                return method.invoke(targetObject, args.toArray());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new ContextCreationException(e);
+            }
+        }
+        throw new ContextCreationException("Duplicate bean creation found");
     }
 
     private void checkConfigClass(Class<?> configClass) {
