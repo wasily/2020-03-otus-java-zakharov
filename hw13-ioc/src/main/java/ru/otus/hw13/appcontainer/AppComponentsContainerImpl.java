@@ -24,49 +24,45 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
         for (Class<?> initialConfigClass : initialConfigClasses) {
             checkConfigClass(initialConfigClass);
         }
-
-        var configClassesMap = Arrays.stream(initialConfigClasses)
-                .collect(Collectors.groupingBy(aClass -> aClass.getAnnotation(AppComponentsContainerConfig.class).order(),
-                        Collectors.toList()));
-
-        configClassesMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .flatMap(entry -> entry.getValue().stream())
-                .forEach(this::processConfig);
+        getSortedClassesList(initialConfigClasses).forEach(this::processConfig);
     }
 
     public AppComponentsContainerImpl(String packageName) {
-        Reflections reflections = new Reflections(packageName, new TypeAnnotationsScanner());
-        var configClassesMap = reflections.getTypesAnnotatedWith(AppComponentsContainerConfig.class, true).stream()
-                .collect(Collectors.groupingBy(aClass -> aClass.getAnnotation(AppComponentsContainerConfig.class).order(),
-                        Collectors.toList()));
-
-        configClassesMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .flatMap(entry -> entry.getValue().stream())
-                .forEach(this::processConfig);
+        getSortedClassesList(packageName).forEach(this::processConfig);
     }
 
+    private List<Class<?>> getSortedClassesList(Class<?>... classes) {
+        return Arrays.stream(classes)
+                .sorted(Comparator.comparing(this::getConfigClassOrder)).collect(Collectors.toList());
+    }
+
+    private List<Class<?>> getSortedClassesList(String path) {
+        Reflections reflections = new Reflections(path, new TypeAnnotationsScanner());
+        return reflections.getTypesAnnotatedWith(AppComponentsContainerConfig.class, true)
+                .stream().sorted(Comparator.comparing(this::getConfigClassOrder)).collect(Collectors.toList());
+    }
+
+    private Integer getConfigClassOrder(Class<?> configClass) {
+        return configClass.getAnnotation(AppComponentsContainerConfig.class).order();
+    }
 
     private void processConfig(Class<?> configClass) {
         checkConfigClass(configClass);
         try {
             var appConfigClassInstance = configClass.getConstructor().newInstance();
             var methodsStream = Arrays.stream(configClass.getDeclaredMethods()).filter(m -> m.isAnnotationPresent(AppComponent.class));
-            var methodsMap = methodsStream
-                    .collect(Collectors.groupingBy(method -> method.getAnnotation(AppComponent.class).order(),
-                            Collectors.toList()));
-            methodsMap.entrySet().stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .flatMap(entry -> entry.getValue().stream())
-                    .forEach(method -> {
-                        String beanName = method.getAnnotation(AppComponent.class).name();
-                        Object bean = createBean(method, appConfigClassInstance, beanName);
-                        registerBean(bean, beanName);
-                    });
+            methodsStream.sorted(Comparator.comparing(this::getBeanOrder)).forEach(method -> {
+                String beanName = method.getAnnotation(AppComponent.class).name();
+                Object bean = createBean(method, appConfigClassInstance, beanName);
+                registerBean(bean, beanName);
+            });
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new ContextCreationException(e);
         }
+    }
+
+    private Integer getBeanOrder(Method method) {
+        return method.getAnnotation(AppComponent.class).order();
     }
 
     private boolean isBeanExists(String beanName) {
