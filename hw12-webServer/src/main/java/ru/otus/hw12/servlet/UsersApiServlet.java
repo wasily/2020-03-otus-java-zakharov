@@ -6,7 +6,6 @@ import ru.otus.hw12.core.model.PhoneDataSet;
 import ru.otus.hw12.core.model.User;
 import ru.otus.hw12.core.service.DBServiceUser;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,13 +18,13 @@ import java.util.stream.Collectors;
 
 public class UsersApiServlet extends HttpServlet {
     private static final int ID_PATH_PARAM_POSITION = 1;
-    private static final String ADMIN_PAGE = "/admin";
     private static final String NAME = "userName";
     private static final String LOGIN = "userLogin";
     private static final String PASSWORD = "userPassword";
     private static final String ADDRESS = "userAddress";
     private static final String PHONES = "userPhones";
     private static final String PHONES_SEPARATOR = ",";
+    private static final long INVALID_ID = -1;
     private final DBServiceUser dbServiceUser;
     private final Gson gson;
 
@@ -35,7 +34,7 @@ public class UsersApiServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         var newUser = new User();
         newUser.setName(req.getParameter(NAME));
         newUser.setLogin(req.getParameter(LOGIN));
@@ -50,21 +49,30 @@ public class UsersApiServlet extends HttpServlet {
                     .map(x -> new PhoneDataSet(UUID.randomUUID().toString(), x)).collect(Collectors.toSet()));
         }
         dbServiceUser.saveUser(newUser);
-        resp.sendRedirect(ADMIN_PAGE);
+
+        resp.setContentType("application/json;charset=UTF-8");
+        ServletOutputStream out = resp.getOutputStream();
+        out.print(gson.toJson(newUser));
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        User user = dbServiceUser.getUser(extractIdFromRequest(request)).orElse(null);
+        long userId = extractIdFromRequest(request);
+        String result;
+        if (userId == INVALID_ID) {
+            result = gson.toJson(dbServiceUser.getAllUsers());
+        } else {
+            result = gson.toJson(dbServiceUser.getUser(userId));
+        }
 
         response.setContentType("application/json;charset=UTF-8");
         ServletOutputStream out = response.getOutputStream();
-        out.print(gson.toJson(user));
+        out.print(result);
     }
 
     private long extractIdFromRequest(HttpServletRequest request) {
         String[] path = request.getPathInfo().split("/");
-        String id = (path.length > 1) ? path[ID_PATH_PARAM_POSITION] : String.valueOf(-1);
+        String id = (path.length > 1) ? path[ID_PATH_PARAM_POSITION] : String.valueOf(INVALID_ID);
         return Long.parseLong(id);
     }
 
