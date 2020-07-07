@@ -55,14 +55,14 @@ public class UsersWebServerSimple implements UsersWebServer {
 
         HandlerList handlers = new HandlerList();
         handlers.addHandler(resourceHandler);
-        handlers.addHandler(applySecurity(servletContextHandler, "/users", "/api/user/*"));
+        handlers.addHandler(applySecurity(servletContextHandler));
 
 
         server.setHandler(handlers);
         return server;
     }
 
-    protected Handler applySecurity(ServletContextHandler servletContextHandler, String...paths) {
+    protected Handler applySecurity(ServletContextHandler servletContextHandler) {
         return servletContextHandler;
     }
 

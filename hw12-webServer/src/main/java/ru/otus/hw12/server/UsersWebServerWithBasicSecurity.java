@@ -13,7 +13,6 @@ import ru.otus.hw12.core.service.DBServiceUser;
 import ru.otus.hw12.services.TemplateProcessor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class UsersWebServerWithBasicSecurity extends UsersWebServerSimple {
@@ -22,6 +21,9 @@ public class UsersWebServerWithBasicSecurity extends UsersWebServerSimple {
     private static final String CONSTRAINT_NAME = "auth";
     private static final String ADMIN_CONSTRAINT_NAME = "admin_auth";
     private static final String ADMIN_PATH = "/admin";
+    private static final String USERS_PATH = "/users";
+    private static final String CREATE_USER_API_PATH = "/api/user";
+    private static final String GET_USER_API_PATH = "/api/user/*";
 
     private final LoginService loginService;
 
@@ -34,29 +36,13 @@ public class UsersWebServerWithBasicSecurity extends UsersWebServerSimple {
         this.loginService = loginService;
     }
 
-    protected Handler applySecurity(ServletContextHandler servletContextHandler, String... paths) {
-        Constraint constraint = new Constraint();
-        constraint.setName(CONSTRAINT_NAME);
-        constraint.setAuthenticate(true);
-        constraint.setRoles(new String[]{ROLE_NAME_USER, ROLE_NAME_ADMIN});
-
+    protected Handler applySecurity(ServletContextHandler servletContextHandler) {
         List<ConstraintMapping> constraintMappings = new ArrayList<>();
-        Arrays.stream(paths).forEachOrdered(path -> {
-            ConstraintMapping mapping = new ConstraintMapping();
-            mapping.setPathSpec(path);
-            mapping.setConstraint(constraint);
-            constraintMappings.add(mapping);
-        });
+        constraintMappings.add(createConstraintMapping(USERS_PATH, CONSTRAINT_NAME, ROLE_NAME_ADMIN, ROLE_NAME_USER));
+        constraintMappings.add(createConstraintMapping(ADMIN_PATH, ADMIN_CONSTRAINT_NAME, ROLE_NAME_ADMIN));
 
-        Constraint adminConstraint = new Constraint();
-        adminConstraint.setName(ADMIN_CONSTRAINT_NAME);
-        adminConstraint.setAuthenticate(true);
-        adminConstraint.setRoles(new String[]{ROLE_NAME_ADMIN});
-
-        ConstraintMapping adminMapping = new ConstraintMapping();
-        adminMapping.setPathSpec(ADMIN_PATH);
-        adminMapping.setConstraint(adminConstraint);
-        constraintMappings.add(adminMapping);
+        constraintMappings.add(createConstraintMapping(GET_USER_API_PATH, CONSTRAINT_NAME, ROLE_NAME_ADMIN, ROLE_NAME_USER));
+        constraintMappings.add(createConstraintMapping(CREATE_USER_API_PATH, ADMIN_CONSTRAINT_NAME, ROLE_NAME_ADMIN));
 
         ConstraintSecurityHandler security = new ConstraintSecurityHandler();
         //как декодировать стороку с юзером:паролем https://www.base64decode.org/
@@ -65,8 +51,17 @@ public class UsersWebServerWithBasicSecurity extends UsersWebServerSimple {
         security.setLoginService(loginService);
         security.setConstraintMappings(constraintMappings);
         security.setHandler(new HandlerList(servletContextHandler));
-
         return security;
+    }
 
+    private ConstraintMapping createConstraintMapping(String path, String constraintName, String... roles) {
+        Constraint constraint = new Constraint();
+        constraint.setName(constraintName);
+        constraint.setRoles(roles);
+        constraint.setAuthenticate(true);
+        ConstraintMapping constraintMapping = new ConstraintMapping();
+        constraintMapping.setPathSpec(path);
+        constraintMapping.setConstraint(constraint);
+        return constraintMapping;
     }
 }
