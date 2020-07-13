@@ -26,7 +26,7 @@ public class UsersController {
         return new ResponseEntity<>(userList, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/api/user/{id}")
+    @GetMapping(path = "/api/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable(name = "id") long id) {
         logger.info("get request on /users/{id}");
         var optionalUser = dbServiceUser.getUser(id);
