@@ -23,8 +23,8 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'ch.qos.logback:logback-classic'
     implementation 'org.hibernate:hibernate-core'
-    testCompile 'org.springframework:spring-test'
-    testCompile 'org.hamcrest:hamcrest-core'
+    testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.hamcrest:hamcrest-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     // https://mvnrepository.com/artifact/org.assertj/assertj-core
