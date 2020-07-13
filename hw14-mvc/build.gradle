@@ -10,12 +10,21 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework:spring-webmvc'
+    implementation 'org.thymeleaf:thymeleaf'
+    implementation 'org.thymeleaf:thymeleaf-spring5'
+    providedCompile 'javax.servlet:javax.servlet-api'
+    implementation 'com.google.code.gson:gson'
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'com.h2database:h2'
+    implementation 'org.flywaydb:flyway-core'
     implementation 'ch.qos.logback:logback-classic'
     implementation 'org.hibernate:hibernate-core'
+    testCompile 'org.springframework:spring-test'
+    testCompile 'org.hamcrest:hamcrest-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     // https://mvnrepository.com/artifact/org.assertj/assertj-core
@@ -28,4 +37,17 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.with {
+        encoding = 'UTF-8'
+    }
+}
+
+war {
+    archiveFileName = 'hw14.war'
+    from 'src/main/resources'
 }
