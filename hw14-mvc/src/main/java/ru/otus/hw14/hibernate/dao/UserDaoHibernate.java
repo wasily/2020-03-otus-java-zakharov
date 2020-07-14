@@ -15,10 +15,7 @@ import ru.otus.hw14.hibernate.sessionmanager.DatabaseSessionHibernate;
 import ru.otus.hw14.hibernate.sessionmanager.SessionManagerHibernate;
 
 import javax.persistence.EntityGraph;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -103,6 +100,22 @@ public class UserDaoHibernate implements UserDao {
         try {
             Session hibernateSession = currentSession.getHibernateSession();
             hibernateSession.merge(user);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new UserDaoException(e);
+        }
+    }
+
+    @Override
+    public void deleteUserById(long id) {
+        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
+        try {
+            Session hibernateSession = currentSession.getHibernateSession();
+            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
+            CriteriaDelete<User> criteriaDelete = cb.createCriteriaDelete(User.class);
+            Root<User> root = criteriaDelete.from(User.class);
+            criteriaDelete.where(cb.equal(root.get(ID_COLUMN_NAME), id));
+            hibernateSession.createQuery(criteriaDelete).executeUpdate();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new UserDaoException(e);

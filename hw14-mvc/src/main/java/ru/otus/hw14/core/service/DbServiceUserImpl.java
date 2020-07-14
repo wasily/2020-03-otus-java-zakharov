@@ -72,6 +72,20 @@ public class DbServiceUserImpl implements DBServiceUser {
     }
 
     @Override
+    public void deleteUser(long id) {
+        logger.info("Using deleteUser");
+        try (SessionManager sessionManager = userDao.getSessionManager()) {
+            sessionManager.beginSession();
+            try {
+                userDao.deleteUserById(id);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                sessionManager.rollbackSession();
+            }
+        }
+    }
+
+    @Override
     public Optional<User> findRandomUser() {
         logger.info("Using findRandomUser");
         try (SessionManager sessionManager = userDao.getSessionManager()) {

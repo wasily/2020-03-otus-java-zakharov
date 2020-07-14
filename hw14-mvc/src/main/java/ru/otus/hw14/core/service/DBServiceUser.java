@@ -13,6 +13,8 @@ public interface DBServiceUser {
 
     List<User> getAllUsers();
 
+    void deleteUser(long id);
+
     Optional<User> getUserWithPhonesAndAddress(long id);
 
     Optional<User> findRandomUser();
