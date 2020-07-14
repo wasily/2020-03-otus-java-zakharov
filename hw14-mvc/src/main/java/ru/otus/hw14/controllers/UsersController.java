@@ -14,6 +14,7 @@ import ru.otus.hw14.core.service.DbServiceException;
 import ru.otus.hw14.core.sessionmanager.SessionManagerException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -58,6 +59,24 @@ public class UsersController {
         model.addAttribute("users", users);
         return "users.html";
     }
+
+    @GetMapping(path = {"/edit/user", "/edit/user/{id}"})
+    public String addUser(Model model, @PathVariable("id") Optional<Long> id) {
+        if (id.isPresent()) {
+            var optionalUser = dbServiceUser.getUser(id.get());
+            optionalUser.ifPresent(user -> model.addAttribute("user", user));
+        } else {
+            model.addAttribute("user", new User());
+        }
+        return "edituser.html";
+    }
+
+    @PostMapping(path = "/save/user")
+    public String createOrUpdateUser(User user) {
+        this.createUser(user);
+        return "redirect:" + START_PAGE;
+    }
+
 
     @GetMapping(path = "/delete/user/{id}")
     public String deleteUser(@PathVariable(name = "id") long id) {
