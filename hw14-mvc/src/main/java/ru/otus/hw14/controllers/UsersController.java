@@ -10,8 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.otus.hw14.core.model.User;
 import ru.otus.hw14.core.service.DBServiceUser;
-import ru.otus.hw14.core.service.DbServiceException;
-import ru.otus.hw14.core.sessionmanager.SessionManagerException;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,20 +30,19 @@ public class UsersController {
 
     @GetMapping(path = "/api/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable(name = "id") long id) {
-        logger.info("get request on /users/{id}");
-        var optionalUser = dbServiceUser.getUser(id);
-        return optionalUser.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
+        logger.info("get request on /api/users/" + id);
+        return dbServiceUser.getUser(id).map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping(path = "/api/users/{id}")
     public ResponseEntity deleteUserById(@PathVariable(name = "id") long id) {
-        logger.info("delete request on /users/{id}");
+        logger.info("delete request on /api/users/" + id);
         int result = dbServiceUser.deleteUser(id);
-        if (result > 0){
+        if (result > 0) {
             return new ResponseEntity(HttpStatus.OK);
         }
-        if (result == 0){
+        if (result == 0) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -53,10 +50,11 @@ public class UsersController {
 
     @PostMapping(path = "/api/users")
     public ResponseEntity<User> saveUser(@RequestBody User user) {
+        logger.info("post request on /api/users");
         try {
             dbServiceUser.saveUser(user);
             return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (SessionManagerException | DbServiceException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
