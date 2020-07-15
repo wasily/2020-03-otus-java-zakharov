@@ -13,7 +13,7 @@ public interface DBServiceUser {
 
     List<User> getAllUsers();
 
-    void deleteUser(long id);
+    int deleteUser(long id);
 
     Optional<User> getUserWithPhonesAndAddress(long id);
 

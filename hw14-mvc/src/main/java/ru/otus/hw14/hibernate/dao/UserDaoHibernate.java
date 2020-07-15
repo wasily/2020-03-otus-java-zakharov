@@ -107,7 +107,7 @@ public class UserDaoHibernate implements UserDao {
     }
 
     @Override
-    public void deleteUserById(long id) {
+    public int deleteUserById(long id) {
         DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
         try {
             Session hibernateSession = currentSession.getHibernateSession();
@@ -115,7 +115,7 @@ public class UserDaoHibernate implements UserDao {
             CriteriaDelete<User> criteriaDelete = cb.createCriteriaDelete(User.class);
             Root<User> root = criteriaDelete.from(User.class);
             criteriaDelete.where(cb.equal(root.get(ID_COLUMN_NAME), id));
-            hibernateSession.createQuery(criteriaDelete).executeUpdate();
+            return hibernateSession.createQuery(criteriaDelete).executeUpdate();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new UserDaoException(e);

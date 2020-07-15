@@ -38,9 +38,16 @@ public class UsersController {
     }
 
     @DeleteMapping(path = "/api/users/{id}")
-    public void deleteUserById(@PathVariable(name = "id") long id) {
+    public ResponseEntity deleteUserById(@PathVariable(name = "id") long id) {
         logger.info("delete request on /users/{id}");
-        dbServiceUser.deleteUser(id);
+        int result = dbServiceUser.deleteUser(id);
+        if (result > 0){
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        if (result == 0){
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @PostMapping(path = "/api/users")
@@ -77,12 +84,14 @@ public class UsersController {
         return "redirect:" + START_PAGE;
     }
 
-
     @GetMapping(path = "/delete/user/{id}")
     public String deleteUser(@PathVariable(name = "id") long id) {
         this.deleteUserById(id);
         return "redirect:" + START_PAGE;
     }
 
-
+    @GetMapping(path = "/")
+    public String redirect() {
+        return "redirect:" + START_PAGE;
+    }
 }

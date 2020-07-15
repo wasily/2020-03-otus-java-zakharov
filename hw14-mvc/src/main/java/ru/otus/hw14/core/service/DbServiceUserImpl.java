@@ -72,17 +72,18 @@ public class DbServiceUserImpl implements DBServiceUser {
     }
 
     @Override
-    public void deleteUser(long id) {
+    public int deleteUser(long id) {
         logger.info("Using deleteUser");
         try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
-                userDao.deleteUserById(id);
+                return userDao.deleteUserById(id);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
                 sessionManager.rollbackSession();
             }
         }
+        return -1;
     }
 
     @Override
