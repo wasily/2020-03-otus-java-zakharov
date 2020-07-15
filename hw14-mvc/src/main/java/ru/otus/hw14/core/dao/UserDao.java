@@ -12,19 +12,9 @@ public interface UserDao {
 
     List<User> findAll();
 
-    Optional<User> findByIdWithPhonesAndAddress(long id);
-
-    long insertUser(User user);
-
-    void updateUser(User user);
-
     int deleteUserById(long id);
 
     void insertOrUpdate(User user);
-
-    Optional<User> findRandomUser();
-
-    Optional<User> findByLogin(String login);
 
     SessionManager getSessionManager();
 }

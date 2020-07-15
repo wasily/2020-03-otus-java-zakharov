@@ -14,9 +14,13 @@ import ru.otus.hw14.core.sessionmanager.SessionManager;
 import ru.otus.hw14.hibernate.sessionmanager.DatabaseSessionHibernate;
 import ru.otus.hw14.hibernate.sessionmanager.SessionManagerHibernate;
 
-import javax.persistence.EntityGraph;
-import javax.persistence.criteria.*;
-import java.util.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
@@ -33,10 +37,13 @@ public class UserDaoHibernate implements UserDao {
     public Optional<User> findById(long id) {
         DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
         try {
-            EntityGraph entityGraph = currentSession.getHibernateSession().getEntityGraph("userEntityGraph");
-            Map<String, Object> properties = new HashMap<>();
-            properties.put("javax.persistence.fetchgraph", entityGraph);
-            return Optional.ofNullable(currentSession.getHibernateSession().find(User.class, id, properties));
+            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
+            CriteriaQuery<User> cr = cb.createQuery(User.class);
+            Root<User> root = cr.from(User.class);
+            cr.select(root).distinct(true).where(cb.equal(root.get(ID_COLUMN_NAME), id));
+            Query<User> query = currentSession.getHibernateSession().createQuery(cr);
+            User result = query.getSingleResult();
+            return Optional.ofNullable(result);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -50,8 +57,6 @@ public class UserDaoHibernate implements UserDao {
             CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
             CriteriaQuery<User> cr = cb.createQuery(User.class);
             Root<User> root = cr.from(User.class);
-            root.fetch(PHONES_COLUMN_NAME, JoinType.LEFT);
-            root.fetch(ADDRESS_COLUMN_NAME, JoinType.LEFT);
             cr.select(root).distinct(true);
             Query<User> query = currentSession.getHibernateSession().createQuery(cr);
             return query.getResultList();
@@ -59,51 +64,6 @@ public class UserDaoHibernate implements UserDao {
             logger.error(e.getMessage(), e);
         }
         return Collections.emptyList();
-    }
-
-    @Override
-    public Optional<User> findByIdWithPhonesAndAddress(long id) {
-        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
-        try {
-            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
-            CriteriaQuery<User> cr = cb.createQuery(User.class);
-            Root<User> root = cr.from(User.class);
-            root.fetch(PHONES_COLUMN_NAME, JoinType.LEFT);
-            root.fetch(ADDRESS_COLUMN_NAME, JoinType.LEFT);
-            cr.select(root).distinct(true).where(cb.equal(root.get(ID_COLUMN_NAME), id));
-            Query<User> query = currentSession.getHibernateSession().createQuery(cr);
-            User result = query.getSingleResult();
-            return Optional.ofNullable(result);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public long insertUser(User user) {
-        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
-        try {
-            Session hibernateSession = currentSession.getHibernateSession();
-            hibernateSession.persist(user);
-            hibernateSession.flush();
-            return user.getId();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new UserDaoException(e);
-        }
-    }
-
-    @Override
-    public void updateUser(User user) {
-        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
-        try {
-            Session hibernateSession = currentSession.getHibernateSession();
-            hibernateSession.merge(user);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new UserDaoException(e);
-        }
     }
 
     @Override
@@ -137,61 +97,6 @@ public class UserDaoHibernate implements UserDao {
             logger.error(e.getMessage(), e);
             throw new UserDaoException(e);
         }
-    }
-
-    @Override
-    public Optional<User> findRandomUser() {
-        int userCount = getUserCount();
-        if (userCount == 0) {
-            return Optional.of(new User(-1, "NO_USER", "null", "null", null, null));
-        }
-
-        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
-        try {
-            int randomNumber = new Random().nextInt(userCount);
-            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
-            CriteriaQuery<User> cr = cb.createQuery(User.class);
-            Root<User> root = cr.from(User.class);
-            cr.select(root);
-            Query<User> query = currentSession.getHibernateSession().createQuery(cr).setFirstResult(randomNumber).setMaxResults(1);
-            User result = query.getResultList().get(0);
-            return Optional.ofNullable(result);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<User> findByLogin(String login) {
-        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
-        try {
-            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
-            CriteriaQuery<User> cr = cb.createQuery(User.class);
-            Root<User> root = cr.from(User.class);
-            cr.select(root).where(cb.equal(root.get(LOGIN_COLUMN_NAME), login));
-            Query<User> query = currentSession.getHibernateSession().createQuery(cr);
-            User result = query.getSingleResult();
-            return Optional.ofNullable(result);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return Optional.empty();
-    }
-
-    private int getUserCount() {
-        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
-        try {
-            CriteriaBuilder cb = currentSession.getHibernateSession().getCriteriaBuilder();
-            CriteriaQuery<Long> cr = cb.createQuery(Long.class);
-            Root<User> root = cr.from(User.class);
-            cr.select(cb.count(root));
-            Query<Long> query = currentSession.getHibernateSession().createQuery(cr);
-            return query.getSingleResult().intValue();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return 0;
     }
 
     @Override

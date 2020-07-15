@@ -15,9 +15,4 @@ public interface DBServiceUser {
 
     int deleteUser(long id);
 
-    Optional<User> getUserWithPhonesAndAddress(long id);
-
-    Optional<User> findRandomUser();
-
-    Optional<User> findByLogin(String login);
 }

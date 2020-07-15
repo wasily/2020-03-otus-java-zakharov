@@ -44,13 +44,6 @@ public class DbServiceUserImpl implements DBServiceUser {
     }
 
     @Override
-    public Optional<User> getUserWithPhonesAndAddress(long id) {
-        String cacheKey = "withLinkedEntities" + id;
-        logger.info("Using findByIdWithPhonesAndAddress");
-        return findUser(id, cacheKey, userDao::findByIdWithPhonesAndAddress);
-    }
-
-    @Override
     public Optional<User> getUser(long id) {
         logger.info("Using findById");
         return findUser(id, String.valueOf(id), userDao::findById);
@@ -84,47 +77,6 @@ public class DbServiceUserImpl implements DBServiceUser {
             }
         }
         return -1;
-    }
-
-    @Override
-    public Optional<User> findRandomUser() {
-        logger.info("Using findRandomUser");
-        try (SessionManager sessionManager = userDao.getSessionManager()) {
-            sessionManager.beginSession();
-            try {
-                Optional<User> userOptional = userDao.findRandomUser();
-                logger.info("user: {}", userOptional.orElse(null));
-                return userOptional;
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                sessionManager.rollbackSession();
-            }
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<User> findByLogin(String login) {
-        logger.info("Using findByLogin");
-        String cacheKey = "findByLogin" + login;
-        var cachedUser = queryCache(cacheKey);
-        if (cachedUser != null) {
-            logger.info("cache hit");
-            return Optional.of(cachedUser);
-        }
-        try (SessionManager sessionManager = userDao.getSessionManager()) {
-            sessionManager.beginSession();
-            try {
-                Optional<User> userOptional = userDao.findByLogin(login);
-                logger.info("user: {}", userOptional.orElse(null));
-                putInCache(cacheKey, userOptional.orElse(null));
-                return userOptional;
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                sessionManager.rollbackSession();
-            }
-            return Optional.empty();
-        }
     }
 
     private Optional<User> findUser(long id, String cacheKey, Function<Long, Optional<User>> function) {

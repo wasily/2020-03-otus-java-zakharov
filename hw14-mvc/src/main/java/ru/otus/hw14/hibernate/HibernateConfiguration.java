@@ -6,8 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.otus.hw14.core.model.Address;
-import ru.otus.hw14.core.model.Phone;
 import ru.otus.hw14.core.model.User;
 
 @Configuration
@@ -17,7 +15,7 @@ public class HibernateConfiguration {
     @Bean
     public SessionFactory sessionFactory() {
         var sessionFactory = HibernateUtils.buildSessionFactory("hibernate.cfg.xml",
-                User.class, Address.class, Phone.class);
+                User.class);
         migration();
         return sessionFactory;
     }
