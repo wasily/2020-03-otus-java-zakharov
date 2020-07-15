@@ -34,7 +34,8 @@ public class UsersController {
     public ResponseEntity<User> getUserById(@PathVariable(name = "id") long id) {
         logger.info("get request on /users/{id}");
         var optionalUser = dbServiceUser.getUser(id);
-        return optionalUser.map(user -> new ResponseEntity<>(user, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return optionalUser.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping(path = "/api/users/{id}")
@@ -51,7 +52,7 @@ public class UsersController {
     }
 
     @PostMapping(path = "/api/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> saveUser(@RequestBody User user) {
         try {
             dbServiceUser.saveUser(user);
             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -68,7 +69,7 @@ public class UsersController {
     }
 
     @GetMapping(path = {"/edit/user", "/edit/user/{id}"})
-    public String addUser(Model model, @PathVariable("id") Optional<Long> id) {
+    public String addUserView(Model model, @PathVariable("id") Optional<Long> id) {
         if (id.isPresent()) {
             var optionalUser = dbServiceUser.getUser(id.get());
             optionalUser.ifPresent(user -> model.addAttribute("user", user));
@@ -80,7 +81,7 @@ public class UsersController {
 
     @PostMapping(path = "/save/user")
     public String createOrUpdateUser(User user) {
-        this.createUser(user);
+        this.saveUser(user);
         return "redirect:" + START_PAGE;
     }
 
