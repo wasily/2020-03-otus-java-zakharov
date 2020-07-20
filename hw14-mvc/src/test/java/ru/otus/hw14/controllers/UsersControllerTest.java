@@ -34,7 +34,8 @@ class UsersControllerTest {
 
     @BeforeEach
     public void setUp() {
-        mvc = MockMvcBuilders.standaloneSetup(new UsersController(dbServiceUser)).build();
+        mvc = MockMvcBuilders.standaloneSetup(new UsersViewController(dbServiceUser),
+                new UsersApiController(dbServiceUser)).build();
     }
 
     @Test

@@ -30,9 +30,7 @@ public class DbServiceUserImpl implements DBServiceUser {
                 userDao.insertOrUpdate(user);
                 long userId = user.getId();
                 sessionManager.commitSession();
-                if (cache != null) {
-                    cache.put(String.valueOf(userId), user);
-                }
+                putInCache(String.valueOf(userId), user);
                 logger.info("created user: {}", userId);
                 return userId;
             } catch (Exception e) {

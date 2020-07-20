@@ -6,7 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.otus.hw14.core.dao.UserDao;
 import ru.otus.hw14.core.dao.UserDaoException;
 import ru.otus.hw14.core.model.User;
@@ -23,14 +23,10 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@Component
+@Repository
 public class UserDaoHibernate implements UserDao {
     private static Logger logger = LoggerFactory.getLogger(UserDaoHibernate.class);
     private static final String ID_COLUMN_NAME = "id";
-    private static final String PHONES_COLUMN_NAME = "phones";
-    private static final String ADDRESS_COLUMN_NAME = "address";
-    private static final String LOGIN_COLUMN_NAME = "login";
-
     private final SessionManagerHibernate sessionManager;
 
     @Override

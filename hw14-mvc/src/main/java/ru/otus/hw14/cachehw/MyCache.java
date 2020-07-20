@@ -3,7 +3,6 @@ package ru.otus.hw14.cachehw;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.WeakHashMap;
@@ -12,7 +11,6 @@ import java.util.WeakHashMap;
  * @author sergey
  * created on 14.12.18.
  */
-@Component
 @RequiredArgsConstructor
 public class MyCache<K, V> implements HwCache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger(MyCache.class);
