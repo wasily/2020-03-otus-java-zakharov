@@ -1,14 +1,13 @@
 package hw15;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 public class Demonstration {
     private final StringBuilder sb = new StringBuilder();
     private final Generator generator = new Generator(10);
-    private String string;
     private static final int THREAD_COUNT = 2;
-    private static final int ITERATION_COUNT = 42;
+    volatile String message = getString();
 
     private String getString() {
         sb.append(generator.getNext()).append(" ");
@@ -16,24 +15,37 @@ public class Demonstration {
     }
 
     public void start() {
-        string = getString();
-        for (int i = 0; i < ITERATION_COUNT; i++) {
-            System.err.println("iteration #" + i);
-            List<Thread> threads = new ArrayList<>(THREAD_COUNT);
-            for (int j = 0; j < THREAD_COUNT; j++) {
-                Thread th = new Thread(() -> System.err.println(Thread.currentThread().getName() + " " + string));
-                th.setName("thread" + j);
-                threads.add(th);
-            }
-            threads.forEach(Thread::start);
-            threads.forEach(thread -> {
+        CyclicBarrier barrier = new CyclicBarrier(THREAD_COUNT, () -> message = getString());
+        Thread th1 = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    thread.join();
-                } catch (InterruptedException e) {
+                    barrier.await();
+                    System.out.println(Thread.currentThread().getName() + " " + message);
+                    Thread.sleep(500);
+                } catch (InterruptedException | BrokenBarrierException e) {
                     e.printStackTrace();
                 }
-            });
-            string = getString();
+            }
+        });
+        th1.setName("thread#1");
+        Thread th2 = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    barrier.await();
+                    System.out.println(Thread.currentThread().getName() + " " + message);
+                    Thread.sleep(500);
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        th2.setName("thread#2");
+        th1.start();
+        th2.start();
+        while (true) {
+            if (barrier.isBroken()) {
+                barrier.reset();
+            }
         }
     }
 }
