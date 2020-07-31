@@ -9,7 +9,6 @@ public class Demonstration {
     private final Generator generator = new Generator(10);
     String message = getString();
     private boolean isTh1Turn = true;
-    private boolean isTh2Turn = false;
 
     private String getString() {
         sb.append(generator.getNext()).append(" ");
@@ -17,7 +16,7 @@ public class Demonstration {
     }
 
     private void changeTurn() {
-        if (isTh2Turn) {
+        if (!isTh1Turn) {
             message = getString();
             try {
                 Thread.sleep(500);
@@ -26,7 +25,6 @@ public class Demonstration {
             }
         }
         isTh1Turn = !isTh1Turn;
-        isTh2Turn = !isTh2Turn;
     }
 
     public void start() {
@@ -58,7 +56,7 @@ public class Demonstration {
             while (true) {
                 lock.lock();
                 try {
-                    while (!isTh2Turn) {
+                    while (isTh1Turn) {
                         try {
                             condition2.await();
                         } catch (InterruptedException e) {
