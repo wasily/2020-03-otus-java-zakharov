@@ -1,51 +1,80 @@
 package hw15;
 
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Demonstration {
     private final StringBuilder sb = new StringBuilder();
     private final Generator generator = new Generator(10);
-    private static final int THREAD_COUNT = 2;
     String message = getString();
+    private boolean isTh1Turn = true;
+    private boolean isTh2Turn = false;
 
     private String getString() {
         sb.append(generator.getNext()).append(" ");
         return sb.toString();
     }
 
+    private void changeTurn() {
+        if (isTh2Turn) {
+            message = getString();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        isTh1Turn = !isTh1Turn;
+        isTh2Turn = !isTh2Turn;
+    }
+
     public void start() {
-        CyclicBarrier barrier = new CyclicBarrier(THREAD_COUNT, () -> message = getString());
+        Lock lock = new ReentrantLock();
+        Condition condition1 = lock.newCondition();
+        Condition condition2 = lock.newCondition();
+
         Thread th1 = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
+            while (true) {
+                lock.lock();
                 try {
-                    barrier.await();
+                    while (!isTh1Turn) {
+                        try {
+                            condition1.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     System.out.println(Thread.currentThread().getName() + " " + message);
-                    Thread.sleep(500);
-                } catch (InterruptedException | BrokenBarrierException e) {
-                    e.printStackTrace();
+                    condition2.signalAll();
+                } finally {
+                    changeTurn();
+                    lock.unlock();
                 }
             }
         });
         th1.setName("thread#1");
         Thread th2 = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
+            while (true) {
+                lock.lock();
                 try {
-                    barrier.await();
+                    while (!isTh2Turn) {
+                        try {
+                            condition2.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     System.out.println(Thread.currentThread().getName() + " " + message);
-                    Thread.sleep(500);
-                } catch (InterruptedException | BrokenBarrierException e) {
-                    e.printStackTrace();
+                    condition1.signalAll();
+                } finally {
+                    changeTurn();
+                    lock.unlock();
                 }
             }
         });
         th2.setName("thread#2");
         th1.start();
         th2.start();
-        while (true) {
-            if (barrier.isBroken()) {
-                barrier.reset();
-            }
-        }
     }
 }
