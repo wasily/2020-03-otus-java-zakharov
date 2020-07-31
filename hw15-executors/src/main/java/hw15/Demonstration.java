@@ -7,7 +7,7 @@ public class Demonstration {
     private final StringBuilder sb = new StringBuilder();
     private final Generator generator = new Generator(10);
     private static final int THREAD_COUNT = 2;
-    volatile String message = getString();
+    String message = getString();
 
     private String getString() {
         sb.append(generator.getNext()).append(" ");
