@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="/webjars/uuid/uuid.js"></script>
+    <title>Список пользователей</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+</head>
+<body onload="getAllUsers();">
+<script type="text/JavaScript">
+    const stompClient = Stomp.over(new SockJS('/users-websocket'));
+    const newUuid = uuid.v4();
+    function getAllUsers() {
+      stompClient.connect({}, (frame) => {
+        stompClient.subscribe('/user/' + newUuid +'/getAll', (message) => printUsers(message));
+        stompClient.subscribe('/user/' + newUuid + '/delete', (message) => deleteUserHandler(message));
+        stompClient.subscribe('/user/' + newUuid + '/save', (message) => saveUserHandler(message));
+        stompClient.send("/app/getAllUsers"+newUuid, {}, "id");
+      });
+    }
+
+    function printUsers(message) {
+        let list = JSON.parse(message.body);
+        let users = document.getElementById('user-lists');
+        for (let user of list){
+            users.appendChild(newUserElement(user))
+        }
+    }
+
+    function newUserElement(user) {
+        let element = document.createElement('div');
+        let userId = user.id
+        element.setAttribute('id', userId);
+        let l = document.createElement('label');
+        l.innerHTML = "ID";
+        l.htmlFor = 'inpId';
+        element.appendChild(l);
+
+        let inp = document.createElement('input');
+        inp.setAttribute("id", "inpId");
+        inp.value = user.id;
+        inp.size = 1;
+        inp.readOnly = true;
+        element.appendChild(inp);
+
+        let nameLabel = document.createElement('label');
+        nameLabel.innerHTML = "name";
+        nameLabel.htmlFor = 'nameInputId';
+        element.appendChild(nameLabel);
+
+        let nameInput = document.createElement('input');
+        nameInput.setAttribute("id", "nameInputId");
+        nameInput.value = user.name;
+        element.appendChild(nameInput);
+
+        let loginLabel = document.createElement('label');
+        loginLabel.innerHTML = "login";
+        loginLabel.htmlFor = 'loginInputId';
+        element.appendChild(loginLabel);
+
+        let loginInput = document.createElement('input');
+        loginInput.setAttribute("id", "loginInputId");
+        loginInput.value = user.login;
+        element.appendChild(loginInput);
+
+        let passwordLabel = document.createElement('label');
+        passwordLabel.innerHTML = "password";
+        passwordLabel.htmlFor = 'passwordInputId';
+        element.appendChild(passwordLabel);
+
+        let passwordInput = document.createElement('input');
+        passwordInput.setAttribute("id", "passwordInputId");
+        passwordInput.value = user.password;
+        element.appendChild(passwordInput);
+
+
+        let deleteButton = document.createElement('button');
+        deleteButton.innerHTML = "Delete";
+        deleteButton.addEventListener("click", () => deleteAction(userId));
+        element.appendChild(deleteButton);
+        return element;
+    }
+
+    function deleteAction(id) {
+       stompClient.send("/app/deleteUser"+newUuid, {}, id);
+    }
+
+    function deleteUserHandler(message) {
+        let response = JSON.parse(message.body);
+        if (response.status) {
+            let elem = document.getElementById(response.id);
+            elem.parentNode.removeChild(elem);
+        }
+    }
+
+    function saveAction() {
+        let user = new Object();
+        user.name = document.getElementById("new-user-name").value;
+        user.login = document.getElementById("new-user-login").value;
+        user.password = document.getElementById("new-user-pass").value;
+        stompClient.send("/app/saveUser"+newUuid, {}, JSON.stringify(user));
+    }
+
+    function saveUserHandler(message) {
+        let response = JSON.parse(message.body);
+        let users = document.getElementById('user-lists');
+        users.appendChild(newUserElement(response))
+    }
+
+</script>
+<div id="users">
+    <h3> Список пользователей </h3>
+    <div id="user-lists"></div>
+    <h3> Создание нового пользователя </h3>
+    <div id="new-user">
+        <label>name</label>
+        <input id="new-user-name">
+        <label>login</label>
+        <input id="new-user-login">
+        <label>pass</label>
+        <input id="new-user-pass" type="password">
+        <button onclick="saveAction()">Создать</button>
+    </div>
+</div>
+
+</body>
+</html>
