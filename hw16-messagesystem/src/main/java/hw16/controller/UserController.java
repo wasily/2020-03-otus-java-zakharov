@@ -1,47 +1,49 @@
 package hw16.controller;
 
 import hw16.core.model.User;
-import hw16.core.service.DBServiceUser;
+import hw16.services.front.FrontendService;
+import hw16.services.front.dto.StatusData;
+import hw16.services.front.dto.UserData;
+import hw16.services.front.dto.UserListData;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 public class UserController {
-    private final DBServiceUser dbServiceUser;
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final FrontendService frontendService;
+    private final SimpMessagingTemplate template;
 
     @MessageMapping("/getAllUsers{uuid}")
-    @SendTo("/user/{uuid}/getAll")
-    @ResponseBody
-    public List<User> getAllUsers(@DestinationVariable String uuid, String id) {
-        logger.warn(" " + dbServiceUser.getAllUsers().size());
-        return dbServiceUser.getAllUsers();
+    public void getAllUsers(@DestinationVariable String uuid, String id) {
+        String destination = String.format("/user/%s/getAll", uuid);
+        frontendService.getAllUsersData(data -> send(destination, data));
     }
 
     @MessageMapping("/deleteUser{uuid}")
-    @SendTo("/user/{uuid}/delete")
-    public String deleteUser(@DestinationVariable String uuid, long id) {
-        boolean status = dbServiceUser.deleteUser(id) != 0;
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("{").append("\"id\"").append(":").append(id).append(",")
-                .append("\"status\"").append(":").append(status).append("}");
-        return stringBuilder.toString();
+    public void deleteUser(@DestinationVariable String uuid, long id) {
+        String destination = String.format("/user/%s/delete", uuid);
+        frontendService.deleteUser(id, data -> send(destination, data));
     }
 
     @MessageMapping("/saveUser{uuid}")
-    @SendTo("/user/{uuid}/save")
-    @ResponseBody
-    public User saveUser(@DestinationVariable String uuid, User user) {
-        dbServiceUser.saveUser(user);
-        return user;
+    public void saveUser(@DestinationVariable String uuid, User user) {
+        String destination = String.format("/user/%s/save", uuid);
+        frontendService.saveUser(user, data -> send(destination, data));
+    }
+
+    private void send(String destination, UserListData userListData) {
+        template.convertAndSend(destination, userListData.getData());
+    }
+
+    private void send(String destination, StatusData statusData) {
+        template.convertAndSend(destination, statusData);
+    }
+
+    private void send(String destination, UserData userData) {
+        template.convertAndSend(destination, userData.getData());
     }
 }

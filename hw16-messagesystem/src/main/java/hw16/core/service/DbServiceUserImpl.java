@@ -43,13 +43,11 @@ public class DbServiceUserImpl implements DBServiceUser {
 
     @Override
     public Optional<User> getUser(long id) {
-        logger.info("Using findById");
         return findUser(id, String.valueOf(id), userDao::findById);
     }
 
     @Override
     public List<User> getAllUsers() {
-        logger.info("Using getAllUsers");
         try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
@@ -64,7 +62,6 @@ public class DbServiceUserImpl implements DBServiceUser {
 
     @Override
     public int deleteUser(long id) {
-        logger.info("Using deleteUser");
         try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
