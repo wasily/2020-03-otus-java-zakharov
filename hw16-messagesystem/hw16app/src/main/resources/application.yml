@@ -1,0 +1,5 @@
+server:
+  port: 8080
+clients:
+  frontend-service-client-name: frontendService
+  database-service-client-name: databaseService
